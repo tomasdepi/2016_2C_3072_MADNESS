@@ -94,7 +94,7 @@ namespace TGC.Group.Form
             TgcShaders.Instance.loadCommonShaders(currentDirectory + Game.Default.ShadersDirectory);
 
             //Juego a ejecutar, si quisiéramos tener diferentes modelos aquí podemos cambiar la instancia e invocar a otra clase.
-            Modelo = new GameModel(currentDirectory + Game.Default.MediaDirectory,
+            Modelo = new Ejemplo(currentDirectory + Game.Default.MediaDirectory,
                 currentDirectory + Game.Default.ShadersDirectory);
 
             //Cargar juego.
@@ -152,7 +152,7 @@ namespace TGC.Group.Form
 
         /// <summary>
         ///     Arranca a ejecutar un ejemplo.
-        ///     Para el ejemplo anterior, si hay alguno.
+        ///     Para el ejemplo     anterior, si hay alguno.
         /// </summary>
         public void ExecuteModel()
         {

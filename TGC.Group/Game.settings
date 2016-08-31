@@ -20,5 +20,8 @@
     <Setting Name="TexturaCaja" Type="System.String" Scope="User">
       <Value Profile="(Default)">cajaMadera4.jpg</Value>
     </Setting>
+    <Setting Name="pathAuto" Type="System.String" Scope="User">
+      <Value Profile="(Default)">MeshCreator\\Meshes\\Vehiculos\\Auto\\Auto-TgcScene.xml</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -94,5 +94,17 @@ namespace TGC.Group {
                 this["TexturaCaja"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("MeshCreator\\\\Meshes\\\\Vehiculos\\\\Auto\\\\Auto-TgcScene.xml")]
+        public string pathAuto {
+            get {
+                return ((string)(this["pathAuto"]));
+            }
+            set {
+                this["pathAuto"] = value;
+            }
+        }
     }
 }
