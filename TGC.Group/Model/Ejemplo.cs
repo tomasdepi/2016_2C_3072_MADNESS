@@ -27,7 +27,7 @@ namespace TGC.Group.Model
 
         private TgcThirdPersonCamera camaraInterna;
 
-        private TgcScene currentScene;
+        private TgcScene escena;
 
         public override void Init()
         {
@@ -49,6 +49,8 @@ namespace TGC.Group.Model
 
             //cargo el escenario
             var pathEscenario = MediaDir + "PatioDeJuegos\\PatioDeJuegos-TgcScene.xml";
+            var loader = new TgcSceneLoader();
+            escena = loader.loadSceneFromFile(pathEscenario);
         }
 
         public override void Update()
@@ -63,6 +65,9 @@ namespace TGC.Group.Model
             //renderizo mi moto en la pantalla
             moto.render();
 
+            //renderizo el escenario
+            escena.renderAll();
+
             PostRender();
         }
 
@@ -70,6 +75,9 @@ namespace TGC.Group.Model
         {
             //destruyo mi moto
             moto.dispose();
+
+            //destruyo el escenario
+            escena.disposeAll();
         }
     }
 }
