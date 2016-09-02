@@ -1,4 +1,6 @@
 ﻿using Microsoft.DirectX;
+using Microsoft.DirectX.Direct3D;
+using Microsoft.DirectX.DirectInput;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +9,7 @@ using System.Threading.Tasks;
 using TGC.Core.Direct3D;
 using TGC.Core.Example;
 using TGC.Core.SceneLoader;
+using TGC.Core.Utils;
 using TGC.Examples.Camara;
 
 namespace TGC.Group.Model
@@ -56,7 +59,46 @@ namespace TGC.Group.Model
         public override void Update()
         {
             PreUpdate();
+
+            if (Input.keyDown(Key.Left))
+            {
+                var rotAngle = FastMath.ToRad(-30 * ElapsedTime);
+                moto.rotateY(rotAngle);
+                camaraInterna.rotateY(-rotAngle);
+            }
+
+            if (Input.keyDown(Key.Right))
+            {
+                var rotAngle = FastMath.ToRad(30 * ElapsedTime);
+                moto.rotateY(rotAngle);
+                camaraInterna.rotateY(-rotAngle);
+            }
+
+            if (Input.keyDown(Key.Up))
+            {
+                moto.moveOrientedY(-100 * ElapsedTime);
+            }
+
+            if (Input.keyDown(Key.Down))
+            {
+                moto.moveOrientedY(100 * ElapsedTime);
+            }
+
+           /* if (Input.keyDown(Key.D))
+            {
+                var rotAngle = FastMath.ToRad(20 * ElapsedTime);
+                camaraInterna.rotateY(rotAngle);
+            }
             
+            if (Input.keyDown(Key.A))
+            {
+                var rotAngle = FastMath.ToRad(-20 * ElapsedTime);
+                camaraInterna.rotateY(rotAngle);
+            }*/
+
+            camaraInterna.Target = moto.Position;
+
+
         }
         public override void Render()
         {
