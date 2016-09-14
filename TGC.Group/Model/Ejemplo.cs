@@ -1,14 +1,11 @@
 ﻿using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX.DirectInput;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TGC.Core.Direct3D;
 using TGC.Core.Example;
+using TGC.Core.Geometry;
 using TGC.Core.SceneLoader;
+using TGC.Core.Textures;
 using TGC.Core.Utils;
 using TGC.Examples.Camara;
 
@@ -30,7 +27,18 @@ namespace TGC.Group.Model
 
         private TgcThirdPersonCamera camaraInterna;
 
-        private TgcScene escena;
+        private TgcPlane piso;
+        private TgcTexture texturaPiso;
+
+        //private TgcScene escena;
+
+        private bool keyLeftRightPressed;
+
+        //variables de camara
+        private int velocidadRotacionCamara;
+        private float anguloRotado;
+        private bool camaraRotando;
+        private int sentidoRotacion;
 
         public override void Init()
         {
@@ -49,30 +57,111 @@ namespace TGC.Group.Model
             //defino una camara de tercera persona que sigue a la moto
             camaraInterna = new TgcThirdPersonCamera(moto.Position, 100, -150);
             Camara = camaraInterna;
+            camaraInterna.rotateY(FastMath.ToRad(180));
 
             //cargo el escenario
-            var pathEscenario = MediaDir + "PatioDeJuegos\\PatioDeJuegos-TgcScene.xml";
-            var loader = new TgcSceneLoader();
-            escena = loader.loadSceneFromFile(pathEscenario);
+            // var pathEscenario = MediaDir + "PatioDeJuegos\\PatioDeJuegos-TgcScene.xml";
+            //var loader = new TgcSceneLoader();
+            //escena = loader.loadSceneFromFile(pathEscenario);
+
+            piso = new TgcPlane();
+            var pathTexturaPiso = MediaDir + "Texturas\\granito.jpg";
+            texturaPiso = TgcTexture.createTexture(d3dDevice, pathTexturaPiso);
+            piso.setTexture(texturaPiso);
+            piso.Origin = moto.Position;
+            piso.Size = new Vector3(1000, 1000, 1000);
+            piso.Orientation = TgcPlane.Orientations.XZplane;
+            piso.updateValues();
+
+            keyLeftRightPressed = false;
+            velocidadRotacionCamara = 100; //grados
+
+            anguloRotado = 0;
+            camaraRotando = false;
+        }
+
+        private void rotarCamaraIzquierda()
+        {
+            anguloRotado = 0;
+            camaraRotando = true;
+            sentidoRotacion = -1;
+        }
+
+        private void rotarCamaraDerecha()
+        {
+            anguloRotado = 0;
+            camaraRotando = true;
+            sentidoRotacion = 1;
+        }
+
+        private void corregirDesfasaje(float rotacion)
+        {
+            camaraInterna.rotateY(FastMath.ToRad(sentidoRotacion * rotacion));
+        }
+
+        private void rotarCamara()
+        {
+            if (camaraRotando)
+            {
+                var rotacion = velocidadRotacionCamara * ElapsedTime;
+                camaraInterna.rotateY(sentidoRotacion * FastMath.ToRad(rotacion));
+                anguloRotado += rotacion;
+                if(anguloRotado >= 90)
+                {
+                    camaraRotando = false;
+                    corregirDesfasaje(anguloRotado - 90);
+                }
+            }
+            
+        }
+
+        private void validarGiroIzquierda()
+        {
+            if (Input.keyDown(Key.Left) && !keyLeftRightPressed && !camaraRotando)
+            {
+                var rotAngle = FastMath.ToRad(-90);
+                moto.rotateY(rotAngle);
+                //camaraInterna.rotateY(-rotAngle);
+                rotarCamaraIzquierda();
+
+                keyLeftRightPressed = true;
+            }
+
+        }
+
+        private void validarGiroDerecha()
+        {
+            if (Input.keyDown(Key.Right) && !keyLeftRightPressed && !camaraRotando)
+            {
+                var rotAngle = FastMath.ToRad(90);
+                moto.rotateY(rotAngle);
+                //camaraInterna.rotateY(-rotAngle);
+                rotarCamaraDerecha();
+
+                keyLeftRightPressed = true;
+            }
+        }
+        
+        private void validarTeclasGiroLevantadas()
+        {
+            if (keyLeftRightPressed)
+            {
+                if (Input.keyUp(Key.Right) || Input.keyUp(Key.Left))
+                {
+                    keyLeftRightPressed = false;
+                }
+            }
         }
 
         public override void Update()
         {
             PreUpdate();
 
-            if (Input.keyDown(Key.Left))
-            {
-                var rotAngle = FastMath.ToRad(-30 * ElapsedTime);
-                moto.rotateY(rotAngle);
-                camaraInterna.rotateY(-rotAngle);
-            }
+            validarGiroDerecha();
+            validarGiroIzquierda();
+            validarTeclasGiroLevantadas();
 
-            if (Input.keyDown(Key.Right))
-            {
-                var rotAngle = FastMath.ToRad(30 * ElapsedTime);
-                moto.rotateY(rotAngle);
-                camaraInterna.rotateY(-rotAngle);
-            }
+            rotarCamara();
 
             if (Input.keyDown(Key.Up))
             {
@@ -83,19 +172,10 @@ namespace TGC.Group.Model
             {
                 moto.moveOrientedY(100 * ElapsedTime);
             }
+         
 
-           /* if (Input.keyDown(Key.D))
-            {
-                var rotAngle = FastMath.ToRad(20 * ElapsedTime);
-                camaraInterna.rotateY(rotAngle);
-            }
-            
-            if (Input.keyDown(Key.A))
-            {
-                var rotAngle = FastMath.ToRad(-20 * ElapsedTime);
-                camaraInterna.rotateY(rotAngle);
-            }*/
 
+            //actualizo la camara para que siga a la moto
             camaraInterna.Target = moto.Position;
 
 
@@ -108,8 +188,9 @@ namespace TGC.Group.Model
             moto.render();
 
             //renderizo el escenario
-            escena.renderAll();
-
+            //escena.renderAll();
+            piso.updateValues();
+            piso.render();
             PostRender();
         }
 
@@ -119,7 +200,9 @@ namespace TGC.Group.Model
             moto.dispose();
 
             //destruyo el escenario
-            escena.disposeAll();
+            //escena.disposeAll();
+
+            piso.dispose();
         }
     }
 }
