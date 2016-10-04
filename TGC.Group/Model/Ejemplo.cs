@@ -5,6 +5,7 @@ using TGC.Core.Direct3D;
 using TGC.Core.Example;
 using TGC.Core.Geometry;
 using TGC.Core.SceneLoader;
+using TGC.Core.Terrain;
 using TGC.Core.Textures;
 using TGC.Core.Utils;
 using TGC.Examples.Camara;
@@ -27,10 +28,7 @@ namespace TGC.Group.Model
 
         private TgcThirdPersonCamera camaraInterna;
 
-        private TgcPlane piso;
-        private TgcTexture texturaPiso;
-
-        //private TgcScene escena;
+        private TgcSkyBox skybox;
 
         private bool keyLeftRightPressed;
 
@@ -46,6 +44,7 @@ namespace TGC.Group.Model
 
             moto = new TgcSceneLoader().loadSceneFromFile(MediaDir + Game.Default.pathAuto).Meshes[0];
             moto.Scale = new Vector3(0.5f, 0.5f, 0.5f);
+            moto.move(new Vector3(0, -5000, 0));
 
             //declaro mi camara
             //var cameraPosition = new Vector3(0, 0, 125);
@@ -55,29 +54,29 @@ namespace TGC.Group.Model
             //Camara.SetCamera(cameraPosition, lookAt);
 
             //defino una camara de tercera persona que sigue a la moto
-            camaraInterna = new TgcThirdPersonCamera(moto.Position, 100, -150);
+            camaraInterna = new TgcThirdPersonCamera(moto.Position, 80, -150);
             Camara = camaraInterna;
             camaraInterna.rotateY(FastMath.ToRad(180));
-
-            //cargo el escenario
-            // var pathEscenario = MediaDir + "PatioDeJuegos\\PatioDeJuegos-TgcScene.xml";
-            //var loader = new TgcSceneLoader();
-            //escena = loader.loadSceneFromFile(pathEscenario);
-
-            piso = new TgcPlane();
-            var pathTexturaPiso = MediaDir + "Texturas\\granito.jpg";
-            texturaPiso = TgcTexture.createTexture(d3dDevice, pathTexturaPiso);
-            piso.setTexture(texturaPiso);
-            piso.Origin = moto.Position;
-            piso.Size = new Vector3(1000, 1000, 1000);
-            piso.Orientation = TgcPlane.Orientations.XZplane;
-            piso.updateValues();
 
             keyLeftRightPressed = false;
             velocidadRotacionCamara = 100; //grados
 
             anguloRotado = 0;
             camaraRotando = false;
+
+            skybox = new TgcSkyBox();
+            skybox.Center = new Vector3(0, 0, 0);
+            skybox.Size = new Vector3(10000, 10000, 10000);
+
+            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Up, MediaDir + "SkyBoxTron\\bottom.png");
+            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Down, MediaDir + "SkyBoxTron\\bottom.png");
+            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Left, MediaDir + "SkyBoxTron\\bottom.png");
+            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Right, MediaDir + "SkyBoxTron\\bottom.png");
+            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Front, MediaDir + "SkyBoxTron\\bottom.png");
+            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Back, MediaDir + "SkyBoxTron\\bottom.png");
+            skybox.SkyEpsilon = 25f;
+            skybox.Init();
+
         }
 
         private void rotarCamaraIzquierda()
@@ -186,11 +185,8 @@ namespace TGC.Group.Model
 
             //renderizo mi moto en la pantalla
             moto.render();
-
-            //renderizo el escenario
-            //escena.renderAll();
-            piso.updateValues();
-            piso.render();
+            
+            skybox.render();
             PostRender();
         }
 
@@ -201,8 +197,8 @@ namespace TGC.Group.Model
 
             //destruyo el escenario
             //escena.disposeAll();
-
-            piso.dispose();
+            skybox.dispose();
+        
         }
     }
 }
