@@ -28,7 +28,7 @@ namespace TGC.Group.Model
 
         private TgcThirdPersonCamera camaraInterna;
 
-        private TgcSkyBox skybox;
+        private SkyBox skyBoxTron;
 
         private bool keyLeftRightPressed;
 
@@ -64,19 +64,8 @@ namespace TGC.Group.Model
             anguloRotado = 0;
             camaraRotando = false;
 
-            skybox = new TgcSkyBox();
-            skybox.Center = new Vector3(0, 0, 0);
-            skybox.Size = new Vector3(10000, 10000, 10000);
-
-            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Up, MediaDir + "SkyBoxTron\\bottom.png");
-            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Down, MediaDir + "SkyBoxTron\\bottom.png");
-            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Left, MediaDir + "SkyBoxTron\\bottom.png");
-            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Right, MediaDir + "SkyBoxTron\\bottom.png");
-            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Front, MediaDir + "SkyBoxTron\\bottom.png");
-            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Back, MediaDir + "SkyBoxTron\\bottom.png");
-            skybox.SkyEpsilon = 25f;
-            skybox.Init();
-
+            skyBoxTron = new SkyBox(MediaDir);
+            skyBoxTron.init();
         }
 
         private void rotarCamaraIzquierda()
@@ -186,7 +175,7 @@ namespace TGC.Group.Model
             //renderizo mi moto en la pantalla
             moto.render();
             
-            skybox.render();
+            skyBoxTron.render();
             PostRender();
         }
 
@@ -194,10 +183,8 @@ namespace TGC.Group.Model
         {
             //destruyo mi moto
             moto.dispose();
-
-            //destruyo el escenario
-            //escena.disposeAll();
-            skybox.dispose();
+            
+            skyBoxTron.dispose();
         
         }
     }
