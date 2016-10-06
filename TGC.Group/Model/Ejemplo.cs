@@ -1,6 +1,7 @@
 ﻿using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX.DirectInput;
+using System.Drawing;
 using TGC.Core.Direct3D;
 using TGC.Core.Example;
 using TGC.Core.Geometry;
@@ -30,6 +31,8 @@ namespace TGC.Group.Model
 
         private SkyBox skyBoxTron;
 
+        private PathLight pathLight;
+
         private bool keyLeftRightPressed;
 
         //variables de camara
@@ -37,6 +40,14 @@ namespace TGC.Group.Model
         private float anguloRotado;
         private bool camaraRotando;
         private int sentidoRotacion;
+
+
+        //variables path
+        private Vector3[] puntos = new Vector3[2000];
+        private int cantPuntos;
+        private Vector3 posMoto = new Vector3();
+        private int altura;
+        private VertexBuffer vertexBuffer;
 
         public override void Init()
         {
@@ -66,6 +77,13 @@ namespace TGC.Group.Model
 
             skyBoxTron = new SkyBox(MediaDir);
             skyBoxTron.init();
+
+            altura = 15;
+            cantPuntos = 2;
+            puntos[0] = new Vector3(0, -5000, 0);
+            puntos[1] = moto.Position;
+            vertexBuffer = new VertexBuffer(typeof(CustomVertex.PositionColored), 3, D3DDevice.Instance.Device,
+               Usage.Dynamic | Usage.WriteOnly, CustomVertex.PositionColored.Format, Pool.Default);
         }
 
         private void rotarCamaraIzquierda()
@@ -108,6 +126,10 @@ namespace TGC.Group.Model
             if (Input.keyDown(Key.Left) && !keyLeftRightPressed && !camaraRotando)
             {
                 var rotAngle = FastMath.ToRad(-90);
+
+                puntos[cantPuntos - 1] = moto.Position;
+                cantPuntos++;
+
                 moto.rotateY(rotAngle);
                 //camaraInterna.rotateY(-rotAngle);
                 rotarCamaraIzquierda();
@@ -122,6 +144,11 @@ namespace TGC.Group.Model
             if (Input.keyDown(Key.Right) && !keyLeftRightPressed && !camaraRotando)
             {
                 var rotAngle = FastMath.ToRad(90);
+
+                puntos[cantPuntos - 1] = moto.Position;
+                cantPuntos++;
+           
+
                 moto.rotateY(rotAngle);
                 //camaraInterna.rotateY(-rotAngle);
                 rotarCamaraDerecha();
@@ -161,13 +188,41 @@ namespace TGC.Group.Model
                 moto.moveOrientedY(100 * ElapsedTime);
             }
          
-
-
             //actualizo la camara para que siga a la moto
             camaraInterna.Target = moto.Position;
 
+            //actualizo vertex buffer
+            puntos[cantPuntos -1] = moto.Position;
+            var data = new CustomVertex.PositionColored[6 * (cantPuntos-1)];
+            for (int i = 1; i < cantPuntos; i++)
+            {
+
+                data[0 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i-1].X, puntos[i - 1].Y, puntos[i - 1].Z, Color.Blue.ToArgb());
+                data[1 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i - 1].X , puntos[i - 1].Y + altura, puntos[i - 1].Z, Color.Blue.ToArgb());
+                data[2 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i].X, puntos[i].Y, puntos[i].Z, Color.Blue.ToArgb());
+
+                data[3 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i - 1].X, puntos[i - 1].Y + altura, puntos[i - 1].Z, Color.Blue.ToArgb());
+                data[4 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i].X , puntos[i].Y + altura, puntos[i].Z, Color.Blue.ToArgb());
+                data[5 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i].X, puntos[i].Y, puntos[i].Z, Color.Blue.ToArgb());
+            }
+
+            vertexBuffer.SetData(data, 0, LockFlags.None);
+        }
+
+        private void renderPathLight()
+        {
+            D3DDevice.Instance.Device.VertexFormat = CustomVertex.PositionColored.Format;
+            //Cargar VertexBuffer a renderizar
+            D3DDevice.Instance.Device.SetStreamSource(0, vertexBuffer, 0);
+            D3DDevice.Instance.Device.Transform.World = Matrix.Translation(2.5f, 0, 0);
+
+            int cantTriangulos = 2 * (cantPuntos - 1);
+
+            D3DDevice.Instance.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, cantTriangulos);
 
         }
+
+
         public override void Render()
         {
             PreRender();
@@ -176,6 +231,9 @@ namespace TGC.Group.Model
             moto.render();
             
             skyBoxTron.render();
+
+            renderPathLight();            
+
             PostRender();
         }
 
@@ -185,7 +243,7 @@ namespace TGC.Group.Model
             moto.dispose();
             
             skyBoxTron.dispose();
-        
+            
         }
     }
 }
