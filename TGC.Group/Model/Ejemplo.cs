@@ -84,6 +84,8 @@ namespace TGC.Group.Model
             puntos[1] = moto.Position;
             vertexBuffer = new VertexBuffer(typeof(CustomVertex.PositionColored), 3, D3DDevice.Instance.Device,
                Usage.Dynamic | Usage.WriteOnly, CustomVertex.PositionColored.Format, Pool.Default);
+
+            pathLight = new PathLight(moto.Position);
         }
 
         private void rotarCamaraIzquierda()
@@ -127,8 +129,7 @@ namespace TGC.Group.Model
             {
                 var rotAngle = FastMath.ToRad(-90);
 
-                puntos[cantPuntos - 1] = moto.Position;
-                cantPuntos++;
+                pathLight.agregarSegmento(moto.Position);
 
                 moto.rotateY(rotAngle);
                 //camaraInterna.rotateY(-rotAngle);
@@ -145,9 +146,7 @@ namespace TGC.Group.Model
             {
                 var rotAngle = FastMath.ToRad(90);
 
-                puntos[cantPuntos - 1] = moto.Position;
-                cantPuntos++;
-           
+                pathLight.agregarSegmento(moto.Position);
 
                 moto.rotateY(rotAngle);
                 //camaraInterna.rotateY(-rotAngle);
@@ -192,21 +191,9 @@ namespace TGC.Group.Model
             camaraInterna.Target = moto.Position;
 
             //actualizo vertex buffer
-            puntos[cantPuntos -1] = moto.Position;
-            var data = new CustomVertex.PositionColored[6 * (cantPuntos-1)];
-            for (int i = 1; i < cantPuntos; i++)
-            {
-
-                data[0 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i-1].X, puntos[i - 1].Y, puntos[i - 1].Z, Color.Blue.ToArgb());
-                data[1 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i - 1].X , puntos[i - 1].Y + altura, puntos[i - 1].Z, Color.Blue.ToArgb());
-                data[2 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i].X, puntos[i].Y, puntos[i].Z, Color.Blue.ToArgb());
-
-                data[3 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i - 1].X, puntos[i - 1].Y + altura, puntos[i - 1].Z, Color.Blue.ToArgb());
-                data[4 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i].X , puntos[i].Y + altura, puntos[i].Z, Color.Blue.ToArgb());
-                data[5 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i].X, puntos[i].Y, puntos[i].Z, Color.Blue.ToArgb());
-            }
-
-            vertexBuffer.SetData(data, 0, LockFlags.None);
+            pathLight.setSegmentoActual(moto.Position);  
+            vertexBuffer.SetData(pathLight.crearTriangulos(), 0, LockFlags.None);
+           
         }
 
         private void renderPathLight()
@@ -216,9 +203,7 @@ namespace TGC.Group.Model
             D3DDevice.Instance.Device.SetStreamSource(0, vertexBuffer, 0);
             D3DDevice.Instance.Device.Transform.World = Matrix.Translation(2.5f, 0, 0);
 
-            int cantTriangulos = 2 * (cantPuntos - 1);
-
-            D3DDevice.Instance.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, cantTriangulos);
+            D3DDevice.Instance.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, pathLight.getCantTriangulos());
 
         }
 
