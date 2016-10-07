@@ -25,13 +25,11 @@ namespace TGC.Group.Model
         }
 
         //declaro el mesh que representa a la moto
-        private TgcMesh moto;
+        private Moto moto;
 
         private TgcThirdPersonCamera camaraInterna;
 
         private SkyBox skyBoxTron;
-
-        private PathLight pathLight;
 
         private bool keyLeftRightPressed;
 
@@ -41,21 +39,15 @@ namespace TGC.Group.Model
         private bool camaraRotando;
         private int sentidoRotacion;
 
-
         //variables path
-        private Vector3[] puntos = new Vector3[2000];
-        private int cantPuntos;
-        private Vector3 posMoto = new Vector3();
-        private int altura;
         private VertexBuffer vertexBuffer;
 
         public override void Init()
         {
             var d3dDevice = D3DDevice.Instance.Device;
 
-            moto = new TgcSceneLoader().loadSceneFromFile(MediaDir + Game.Default.pathAuto).Meshes[0];
-            moto.Scale = new Vector3(0.5f, 0.5f, 0.5f);
-            moto.move(new Vector3(0, -5000, 0));
+            moto = new Moto(MediaDir);
+            moto.init();
 
             //declaro mi camara
             //var cameraPosition = new Vector3(0, 0, 125);
@@ -65,7 +57,7 @@ namespace TGC.Group.Model
             //Camara.SetCamera(cameraPosition, lookAt);
 
             //defino una camara de tercera persona que sigue a la moto
-            camaraInterna = new TgcThirdPersonCamera(moto.Position, 80, -150);
+            camaraInterna = new TgcThirdPersonCamera(moto.getPosicion(), 80, -150);
             Camara = camaraInterna;
             camaraInterna.rotateY(FastMath.ToRad(180));
 
@@ -77,15 +69,10 @@ namespace TGC.Group.Model
 
             skyBoxTron = new SkyBox(MediaDir);
             skyBoxTron.init();
-
-            altura = 15;
-            cantPuntos = 2;
-            puntos[0] = new Vector3(0, -5000, 0);
-            puntos[1] = moto.Position;
+            
             vertexBuffer = new VertexBuffer(typeof(CustomVertex.PositionColored), 3, D3DDevice.Instance.Device,
                Usage.Dynamic | Usage.WriteOnly, CustomVertex.PositionColored.Format, Pool.Default);
 
-            pathLight = new PathLight(moto.Position);
         }
 
         private void rotarCamaraIzquierda()
@@ -127,12 +114,9 @@ namespace TGC.Group.Model
         {
             if (Input.keyDown(Key.Left) && !keyLeftRightPressed && !camaraRotando)
             {
-                var rotAngle = FastMath.ToRad(-90);
 
-                pathLight.agregarSegmento(moto.Position);
+                moto.girarIzquierda();
 
-                moto.rotateY(rotAngle);
-                //camaraInterna.rotateY(-rotAngle);
                 rotarCamaraIzquierda();
 
                 keyLeftRightPressed = true;
@@ -144,11 +128,9 @@ namespace TGC.Group.Model
         {
             if (Input.keyDown(Key.Right) && !keyLeftRightPressed && !camaraRotando)
             {
-                var rotAngle = FastMath.ToRad(90);
 
-                pathLight.agregarSegmento(moto.Position);
-
-                moto.rotateY(rotAngle);
+                moto.girarDerecha();
+                
                 //camaraInterna.rotateY(-rotAngle);
                 rotarCamaraDerecha();
 
@@ -179,20 +161,17 @@ namespace TGC.Group.Model
 
             if (Input.keyDown(Key.Up))
             {
-                moto.moveOrientedY(-100 * ElapsedTime);
+                moto.acelerar(ElapsedTime);
             }
 
-            if (Input.keyDown(Key.Down))
-            {
-                moto.moveOrientedY(100 * ElapsedTime);
-            }
+            
          
             //actualizo la camara para que siga a la moto
-            camaraInterna.Target = moto.Position;
+            camaraInterna.Target = moto.getPosicion();
 
             //actualizo vertex buffer
-            pathLight.setSegmentoActual(moto.Position);  
-            vertexBuffer.SetData(pathLight.crearTriangulos(), 0, LockFlags.None);
+            moto.actualizarPuntoPathLight();  
+            vertexBuffer.SetData(moto.generarPathLight(), 0, LockFlags.None);
            
         }
 
@@ -203,7 +182,7 @@ namespace TGC.Group.Model
             D3DDevice.Instance.Device.SetStreamSource(0, vertexBuffer, 0);
             D3DDevice.Instance.Device.Transform.World = Matrix.Translation(2.5f, 0, 0);
 
-            D3DDevice.Instance.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, pathLight.getCantTriangulos());
+            D3DDevice.Instance.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, moto.getPathLight().getCantTriangulos());
 
         }
 
