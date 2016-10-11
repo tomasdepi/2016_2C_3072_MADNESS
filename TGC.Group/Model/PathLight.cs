@@ -13,10 +13,12 @@ namespace TGC.Group.Model
     public class PathLight
     {
 
-        private Vector3[] puntos = new Vector3[1000];
+        private Vector3[] puntos = new Vector3[2000];
         private int cantPuntos;
         private Vector3 posMoto = new Vector3();
         private int altura;
+
+        private int color = Color.Blue.ToArgb();
 
         public PathLight(Vector3 posMoto)
         {
@@ -32,13 +34,13 @@ namespace TGC.Group.Model
 
             for (int i = 1; i < cantPuntos; i++)
             {
-                data[0 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i - 1].X, puntos[i - 1].Y, puntos[i - 1].Z, Color.Blue.ToArgb());
-                data[1 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i - 1].X, puntos[i - 1].Y + altura, puntos[i - 1].Z, Color.Blue.ToArgb());
-                data[2 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i].X, puntos[i].Y, puntos[i].Z, Color.Blue.ToArgb());
+                data[0 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i - 1].X, puntos[i - 1].Y, puntos[i - 1].Z, color);
+                data[1 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i - 1].X, puntos[i - 1].Y + altura, puntos[i - 1].Z, color);
+                data[2 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i].X, puntos[i].Y, puntos[i].Z, color);
 
-                data[3 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i - 1].X, puntos[i - 1].Y + altura, puntos[i - 1].Z, Color.Blue.ToArgb());
-                data[4 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i].X, puntos[i].Y + altura, puntos[i].Z, Color.Blue.ToArgb());
-                data[5 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i].X, puntos[i].Y, puntos[i].Z, Color.Blue.ToArgb());
+                data[3 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i - 1].X, puntos[i - 1].Y + altura, puntos[i - 1].Z, color);
+                data[4 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i].X, puntos[i].Y + altura, puntos[i].Z, color);
+                data[5 + (i - 1) * 6] = new CustomVertex.PositionColored(puntos[i].X, puntos[i].Y, puntos[i].Z, color);
             }
 
             return data;
@@ -63,6 +65,11 @@ namespace TGC.Group.Model
         public int getCantTriangulos()
         {
             return (cantPuntos - 1) * 2;
+        }
+
+        public void cambiarColor(int c)
+        {
+            this.color = c;
         }
     }
 }

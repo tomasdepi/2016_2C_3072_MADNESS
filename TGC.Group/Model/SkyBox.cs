@@ -27,10 +27,10 @@ namespace TGC.Group.Model
 
             skybox.setFaceTexture(TgcSkyBox.SkyFaces.Up, MediaDir + "SkyBoxTron\\bottom.png");
             skybox.setFaceTexture(TgcSkyBox.SkyFaces.Down, MediaDir + "SkyBoxTron\\bottom.png");
-            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Left, MediaDir + "SkyBoxTron\\bottom.png");
-            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Right, MediaDir + "SkyBoxTron\\bottom.png");
-            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Front, MediaDir + "SkyBoxTron\\bottom.png");
-            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Back, MediaDir + "SkyBoxTron\\bottom.png");
+            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Left, MediaDir + "SkyBoxTron\\Pared.jpg");
+            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Right, MediaDir + "SkyBoxTron\\Pared.jpg");
+            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Front, MediaDir + "SkyBoxTron\\Pared.jpg");
+            skybox.setFaceTexture(TgcSkyBox.SkyFaces.Back, MediaDir + "SkyBoxTron\\Pared.jpg");
             skybox.SkyEpsilon = 25f;
             skybox.Init();
 
