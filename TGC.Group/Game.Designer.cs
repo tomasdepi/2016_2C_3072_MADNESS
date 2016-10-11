@@ -106,5 +106,29 @@ namespace TGC.Group {
                 this["pathAuto"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("SkyBoxTron\\\\")]
+        public string PathSkybox {
+            get {
+                return ((string)(this["PathSkybox"]));
+            }
+            set {
+                this["PathSkybox"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("MeshCreator\\\\Meshes\\\\Vehiculos\\\\Moto\\\\Moto-TgcScene.xml")]
+        public string pathMoto {
+            get {
+                return ((string)(this["pathMoto"]));
+            }
+            set {
+                this["pathMoto"] = value;
+            }
+        }
     }
 }

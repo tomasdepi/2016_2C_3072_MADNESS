@@ -23,5 +23,11 @@
     <Setting Name="pathAuto" Type="System.String" Scope="User">
       <Value Profile="(Default)">MeshCreator\\Meshes\\Vehiculos\\Auto\\Auto-TgcScene.xml</Value>
     </Setting>
+    <Setting Name="PathSkybox" Type="System.String" Scope="User">
+      <Value Profile="(Default)">SkyBoxTron\\</Value>
+    </Setting>
+    <Setting Name="pathMoto" Type="System.String" Scope="User">
+      <Value Profile="(Default)">MeshCreator\\Meshes\\Vehiculos\\Moto\\Moto-TgcScene.xml</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
