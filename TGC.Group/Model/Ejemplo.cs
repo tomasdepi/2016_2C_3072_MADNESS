@@ -215,11 +215,9 @@ namespace TGC.Group.Model
             if (moto.coomprobarColisionPathLight(path))
             {
                 perdido = true;
-            }else
-            {
-                perdido = false;
             }
-            oponente.seguirObjetivo(moto.getPosicion(), ElapsedTime);
+
+            oponente.seguirObjetivo(moto, ElapsedTime);
            
         }
 

@@ -27,6 +27,8 @@ namespace TGC.Group.Model
         private VertexBuffer vertexbuffer;
         private Vector3 posInicial;
 
+        private int orientacion;
+
         public Moto(string mediaPath, Vector3 posInicial)
         {
             this.MediaDir = mediaPath;
@@ -39,9 +41,9 @@ namespace TGC.Group.Model
             moto = new TgcSceneLoader().loadSceneFromFile(MediaDir + Game.Default.pathMoto).Meshes[0];
             moto.Scale = new Vector3(0.5f, 0.5f, 0.5f);
             moto.move(posInicial);
-
             
             velocidad = 100;
+            orientacion = 1; //frente
 
             moto.moveOrientedY(35);
             pathlight = new PathLight(moto.Position);
@@ -84,6 +86,8 @@ namespace TGC.Group.Model
             var rotAngle = FastMath.ToRad(-90);
             moto.rotateY(rotAngle);
 
+            orientacion += 1;
+            if (orientacion == 5) orientacion = 1;
             
             pathlight.agregarSegmento(moto.Position);
             moto.moveOrientedY(-35);
@@ -95,7 +99,9 @@ namespace TGC.Group.Model
             var rotAngle = FastMath.ToRad(90);
             moto.rotateY(rotAngle);
 
-            
+            orientacion -= 1;
+            if (orientacion == 0) orientacion = 1;
+
             pathlight.agregarSegmento(moto.Position);
             moto.moveOrientedY(-35);
         }
@@ -140,6 +146,11 @@ namespace TGC.Group.Model
         public void mover(Vector3 matriz)
         {
             moto.move(matriz);
+        }
+
+        public int getOrientacion()
+        {
+            return orientacion;
         }
 
         public bool coomprobarColisionPathLight(CustomVertex.PositionColored[] path)
