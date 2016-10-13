@@ -84,6 +84,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Game.settings</DependentUpon>
     </Compile>
+    <Compile Include="Model\Oponente.cs" />
+    <Compile Include="Model\Moto.cs" />
+    <Compile Include="Model\PathLight.cs" />
+    <Compile Include="Model\SkyBox.cs" />
+    <Compile Include="Model\TgcThirdPersonCamera.cs" />
+    <Compile Include="Model\Ejemplo.cs" />
     <Compile Include="Model\GameModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
