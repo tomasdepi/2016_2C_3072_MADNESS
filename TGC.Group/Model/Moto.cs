@@ -27,7 +27,7 @@ namespace TGC.Group.Model
         private VertexBuffer vertexbuffer;
         private Vector3 posInicial;
 
-        private int orientacion;
+        private int rotando;
 
         public Moto(string mediaPath, Vector3 posInicial)
         {
@@ -43,7 +43,7 @@ namespace TGC.Group.Model
             moto.move(posInicial);
             
             velocidad = 100;
-            orientacion = 1; //frente
+            rotando = 0;
 
             moto.moveOrientedY(35);
             pathlight = new PathLight(moto.Position);
@@ -85,25 +85,29 @@ namespace TGC.Group.Model
             moto.moveOrientedY(35);
             var rotAngle = FastMath.ToRad(-90);
             moto.rotateY(rotAngle);
-
-            orientacion += 1;
-            if (orientacion == 5) orientacion = 1;
             
             pathlight.agregarSegmento(moto.Position);
             moto.moveOrientedY(-35);
+
+            rotar(-1);
         }
 
         public void girarDerecha()
         {
-            moto.moveOrientedY(25);
+            moto.moveOrientedY(35);
             var rotAngle = FastMath.ToRad(90);
             moto.rotateY(rotAngle);
 
-            orientacion -= 1;
-            if (orientacion == 0) orientacion = 1;
-
             pathlight.agregarSegmento(moto.Position);
             moto.moveOrientedY(-35);
+
+            rotar(1);
+        }
+
+        private void rotar(int sentido)
+        {
+            moto.rotateZ(FastMath.ToRad(sentido * 45));
+            rotando = sentido;
         }
 
         public Vector3 getPosicion()
@@ -114,6 +118,11 @@ namespace TGC.Group.Model
         public void acelerar(float ElepsedTime)
         {
             moto.moveOrientedY(-1 * velocidad * ElepsedTime);
+        }
+
+        public void retroceder(float ElepsedTime)
+        {
+            moto.moveOrientedY(velocidad * ElepsedTime);
         }
 
         public CustomVertex.PositionColored[] generarPathLight()
@@ -148,11 +157,6 @@ namespace TGC.Group.Model
             moto.move(matriz);
         }
 
-        public int getOrientacion()
-        {
-            return orientacion;
-        }
-
         public bool coomprobarColisionPathLight(CustomVertex.PositionColored[] path)
         {
             for (int i = 0; i < path.Length; i += 3)
@@ -167,6 +171,20 @@ namespace TGC.Group.Model
                 }
             }
             return false;
+        }
+
+
+        public double distancia(Vector3 punto)
+        {
+            return Math.Sqrt(
+                Math.Pow(this.getPosicion().X - punto.X, 2) +
+                Math.Pow(this.getPosicion().Z - punto.Z, 2)
+            );
+        }
+
+        public void update()
+        {
+            
         }
 
 

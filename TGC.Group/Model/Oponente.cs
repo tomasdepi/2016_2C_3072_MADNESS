@@ -21,11 +21,15 @@ namespace TGC.Group.Model
         private bool orientacionX;
         private bool orientacionY;
 
+        private float tiempo;
+
         public Oponente(string mediaPath, Vector3 posInicial) : base(mediaPath, posInicial)
         {
             MediaDir = mediaPath;
             arrowX = new TgcArrow();
             arrowZ = new TgcArrow();
+
+            tiempo = 0;
         }
 
         public void seguirObjetivo(Moto moto, float ElepsedTime)
@@ -35,12 +39,9 @@ namespace TGC.Group.Model
             Vector3 vectorEnZ = new Vector3(this.getPosicion().X, -5000, moto.getPosicion().Z);
             //Vector3 direccion = new Vector3(moto.getPosicion().X - this.getPosicion().X, 0, moto.getPosicion().Z - this.getPosicion().Z);
 
-            var distanciaEnX = moto.getPosicion().X - this.getPosicion().X; 
+            var distanciaEnX = moto.getPosicion().X - this.getPosicion().X;
             var distanciaEnZ = moto.getPosicion().Z - this.getPosicion().Z;
 
-            //var angulo1 = Vector3.Dot(vectorEnX, direccion);
-            //var angulo2 = Vector3.Dot(vectorEnZ, direccion);
-            
             arrowX.PStart = this.getPosicion();
             arrowX.PEnd = vectorEnX;
             arrowZ.PStart = this.getPosicion();
@@ -48,54 +49,68 @@ namespace TGC.Group.Model
 
             arrowX.updateValues();
             arrowZ.updateValues();
-            
+
 
             if (!moto.getPosicion().Equals(new Vector3(0, -5000, 0)))
             { //posicion inicial
 
                 this.acelerar(ElepsedTime);
 
-
-                if (Math.Abs(distanciaEnX) > Math.Abs(distanciaEnZ))
+                if (verificarGiro(ElepsedTime))
                 {
-                    if (distanciaEnX > 0)
-                    {
-                        //if (this.getOrientacion() == 1) this.girarIzquierda();
-                        //if (this.getOrientacion() == 3) this.girarDerecha();
-                    }
-                    else
-                    {
-                        //if (this.getOrientacion() == 1) this.girarDerecha();
-                        //if (this.getOrientacion() == 3) this.girarIzquierda();
-                    }
-
+                    if (verificarGiroDerecha(moto, ElepsedTime)) this.girarDerecha();
+                    if (verificarGiroIzquierda(moto, ElepsedTime)) this.girarIzquierda();
                 }
-                else
-                {
-                    /*if (distanciaEnZ > 0)
-                    {
-                        if (this.getOrientacion() == 2) this.girarDerecha();
-                        if (this.getOrientacion() == 3) this.girarIzquierda();
-                    }
-                    else
-                    {
-                        if (this.getOrientacion() == 1) this.girarIzquierda();
-                        if (this.getOrientacion() == 3) this.girarDerecha();
-                    }*/
-                }
-                    
-
 
 
             }
 
         }
 
+        private bool verificarGiro(float ElepsedTime)
+        {
+            tiempo += ElepsedTime;
+            if (tiempo > 2)
+            {
+                tiempo = 0;
+                return true;
+            }
+            return false;
+        }
+
+        private bool verificarPosAdelante(Moto moto, float ElepsedTime)
+        {
+            double distAhora = this.distancia(moto.getPosicion());
+            this.acelerar(ElepsedTime);
+            double distDespues = this.distancia(moto.getPosicion());
+            this.retroceder(ElepsedTime);
+
+            return distDespues < distAhora ? true : false;
+        }
+
+        private bool verificarGiroIzquierda(Moto moto, float ElepsedTime)
+        {
+            this.girarIzquierda();
+            bool resu = verificarPosAdelante(moto, ElepsedTime);
+            this.girarDerecha();
+            this.retroceder(ElepsedTime);
+            return resu;
+        }
+
+        private bool verificarGiroDerecha(Moto moto, float ElepsedTime)
+        {
+            this.girarDerecha();
+            bool resu = verificarPosAdelante(moto, ElepsedTime);
+            this.girarIzquierda();
+            this.retroceder(ElepsedTime);
+            return resu;
+        }
+
         public new void render()
         {
             base.render();
-            arrowX.render();
-            arrowZ.render();
+            //arrowX.render();
+            //arrowZ.render();
         }
 
         public new void dispose()
