@@ -129,12 +129,13 @@ namespace TGC.Group.Model
         {
             if (Input.keyDown(Key.Left) && !keyLeftRightPressed && !camaraRotando)
             {
-
-                moto.girarIzquierda();
-
-                rotarCamaraIzquierda();
-
-                keyLeftRightPressed = true;
+                if (moto.estaSaltando())
+                {
+                    moto.girarIzquierda();
+                    rotarCamaraIzquierda();
+                    keyLeftRightPressed = true;
+                }
+               
             }
 
         }
@@ -143,13 +144,13 @@ namespace TGC.Group.Model
         {
             if (Input.keyDown(Key.Right) && !keyLeftRightPressed && !camaraRotando)
             {
-
-                moto.girarDerecha();
-                
-                //camaraInterna.rotateY(-rotAngle);
-                rotarCamaraDerecha();
-
-                keyLeftRightPressed = true;
+                if (moto.estaSaltando())
+                {
+                    moto.girarDerecha();
+                    rotarCamaraDerecha();
+                    keyLeftRightPressed = true;
+                }
+              
             }
         }
         
@@ -164,22 +165,29 @@ namespace TGC.Group.Model
             }
         }
 
+        private void validarSalto()
+        {
+            if (Input.keyDown(Key.Space))
+            {
+                moto.saltar(ElapsedTime);
+            }
+        }
+
         public override void Update()
         {
             PreUpdate();
+
+            moto.update(ElapsedTime);
+            oponente.update(ElapsedTime);
 
             if (!perdido) { 
 
                 validarGiroDerecha();
                 validarGiroIzquierda();
+                validarSalto();
                 validarTeclasGiroLevantadas();
 
                 rotarCamara();
-
-                if (Input.keyDown(Key.A))
-                {
-                    oponente.acelerar(ElapsedTime);
-                }
 
                 if (Input.keyDown(Key.Up))
                 {
@@ -190,26 +198,9 @@ namespace TGC.Group.Model
             //actualizo la camara para que siga a la moto
             camaraInterna.Target = moto.getPosicion();
 
-            //actualizo vertex buffer
-            moto.actualizarPuntoPathLight();
-            oponente.actualizarPuntoPathLight();
-
             CustomVertex.PositionColored[] path = new CustomVertex.PositionColored[moto.generarPathLight().Length + oponente.generarPathLight().Length];
             moto.generarPathLight().CopyTo(path, 0);
             oponente.generarPathLight().CopyTo(path, moto.generarPathLight().Length);
-
-            //for(int i=0; i<path.Length; i += 3)
-            // {
-            //     Vector3 a = new Vector3(path[i].X, path[i].Y, path[i].Z);
-            //     Vector3 b = new Vector3(path[i+1].X, path[i+1].Y, path[i+1].Z);
-            //     Vector3 c = new Vector3(path[i+2].X, path[i+2].Y, path[i+2].Z);
-
-            //     if (TgcCollisionUtils.testTriangleAABB(a, b, c, moto.getBoundingBox())){
-            //         path[i] = new CustomVertex.PositionColored(a.X, a.Y, a.Z, Color.Red.ToArgb());
-            //         path[i+1] = new CustomVertex.PositionColored(b.X, b.Y, b.Z, Color.Red.ToArgb());
-            //         path[i+2] = new CustomVertex.PositionColored(c.X, c.Y, c.Z, Color.Red.ToArgb());
-            //     }
-            // }
 
             vertexBuffer.SetData(path, 0, LockFlags.None);
             if (moto.coomprobarColisionPathLight(path))
@@ -217,7 +208,7 @@ namespace TGC.Group.Model
                 perdido = true;
             }
 
-            oponente.seguirObjetivo(moto, ElapsedTime);
+            //oponente.seguirObjetivo(moto, ElapsedTime, path);
            
         }
 
@@ -230,6 +221,7 @@ namespace TGC.Group.Model
             moto.render();
 
             oponente.render();
+
             
             skyBoxTron.render();
 

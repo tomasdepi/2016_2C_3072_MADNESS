@@ -20,7 +20,7 @@ namespace TGC.Group.Model
 
         private TgcMesh moto;
         private string MediaDir;
-        private int velocidad;
+        
 
         private PathLight pathlight;
 
@@ -28,6 +28,17 @@ namespace TGC.Group.Model
         private Vector3 posInicial;
 
         private int rotando;
+        private float velocidadRotacion;
+        private float anguloRotado;
+
+        private int velocidadMaxima;
+        private float velocidad;
+
+        private float posY; //para saltar
+        private int distMaxSalto;
+        private int velocidadSalto;
+        private int saltando; //0 no salta, 1 sube, -1 baja 
+
 
         public Moto(string mediaPath, Vector3 posInicial)
         {
@@ -42,8 +53,17 @@ namespace TGC.Group.Model
             moto.Scale = new Vector3(0.5f, 0.5f, 0.5f);
             moto.move(posInicial);
             
-            velocidad = 100;
+            velocidad = 0;
+            velocidadMaxima = 250;
+
             rotando = 0;
+            velocidadRotacion = 25;
+            anguloRotado = 0;
+
+            posY = 0;
+            distMaxSalto = 50;
+            velocidadSalto = 40;
+            saltando = 0;
 
             moto.moveOrientedY(35);
             pathlight = new PathLight(moto.Position);
@@ -106,9 +126,48 @@ namespace TGC.Group.Model
 
         private void rotar(int sentido)
         {
-            moto.rotateZ(FastMath.ToRad(sentido * 45));
+            moto.rotateZ(FastMath.ToRad(sentido * (45 - sentido * anguloRotado)));
             rotando = sentido;
+            anguloRotado = 45 * sentido;
         }
+
+        public void update(float ElepsedTime)
+        {
+
+            if (rotando != 0)
+            {
+                moto.rotateZ(FastMath.ToRad(-rotando * velocidadRotacion * ElepsedTime));
+                if (rotando * anguloRotado < 0)
+                {
+                    rotando = 0;
+                }
+            }
+
+            anguloRotado += ElepsedTime * velocidadRotacion * -rotando;
+
+            if (this.velocidad > 0) this.velocidad -= (float)0.3;
+            moto.moveOrientedY(-1 * velocidad * ElepsedTime);
+            this.actualizarPuntoPathLight();
+
+
+            if (saltando != 0)
+            {
+                this.moto.move(new Vector3(0, saltando * velocidadSalto * ElepsedTime, 0));
+                posY += saltando * velocidadSalto * ElepsedTime;
+
+                if (saltando == 1 && posY > distMaxSalto)
+                {
+                    saltando = -1;
+                    this.retroceder((float)0.3);
+                    pathlight.agregarSegmento(moto.Position);
+                    this.avanzar((float)0.3);
+                }
+                if (saltando == -1 && posY < 0) saltando = 0;
+            }
+            
+            
+        }
+
 
         public Vector3 getPosicion()
         {
@@ -116,6 +175,13 @@ namespace TGC.Group.Model
         }
 
         public void acelerar(float ElepsedTime)
+        {
+            this.velocidad = velocidadMaxima < this.velocidad + 1 ? velocidadMaxima : this.velocidad + 1; 
+            //moto.moveOrientedY(-1 * velocidad * ElepsedTime);
+            //this.actualizarPuntoPathLight();
+        }
+
+        public void avanzar(float ElepsedTime)
         {
             moto.moveOrientedY(-1 * velocidad * ElepsedTime);
         }
@@ -142,7 +208,7 @@ namespace TGC.Group.Model
             return pathlight;
         }
 
-        public int getVelocidad()
+        public float getVelocidad()
         {
             return this.velocidad;
         }
@@ -182,10 +248,23 @@ namespace TGC.Group.Model
             );
         }
 
-        public void update()
+        public void saltar(float ElapsedTime)
         {
+            if(saltando == 0)
+            {
+                saltando = 1;
+                this.retroceder((float)0.3);
+                pathlight.agregarSegmento(moto.Position);
+                this.avanzar((float)0.3);
+            }
             
         }
+
+        public bool estaSaltando()
+        {
+            return saltando == 0 ? true : false; 
+        }
+        
 
 
     }

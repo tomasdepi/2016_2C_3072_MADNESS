@@ -1,4 +1,5 @@
 ﻿using Microsoft.DirectX;
+using Microsoft.DirectX.Direct3D;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -15,8 +16,6 @@ namespace TGC.Group.Model
     {
 
         private String MediaDir;
-        private TgcArrow arrowX;
-        private TgcArrow arrowZ;
 
         private bool orientacionX;
         private bool orientacionY;
@@ -26,29 +25,18 @@ namespace TGC.Group.Model
         public Oponente(string mediaPath, Vector3 posInicial) : base(mediaPath, posInicial)
         {
             MediaDir = mediaPath;
-            arrowX = new TgcArrow();
-            arrowZ = new TgcArrow();
 
             tiempo = 0;
         }
 
-        public void seguirObjetivo(Moto moto, float ElepsedTime)
+        public void seguirObjetivo(Moto moto, float ElepsedTime, CustomVertex.PositionColored[] obstaculos)
         {
 
             Vector3 vectorEnX = new Vector3(moto.getPosicion().X, -5000, this.getPosicion().Z);
             Vector3 vectorEnZ = new Vector3(this.getPosicion().X, -5000, moto.getPosicion().Z);
-            //Vector3 direccion = new Vector3(moto.getPosicion().X - this.getPosicion().X, 0, moto.getPosicion().Z - this.getPosicion().Z);
-
+    
             var distanciaEnX = moto.getPosicion().X - this.getPosicion().X;
             var distanciaEnZ = moto.getPosicion().Z - this.getPosicion().Z;
-
-            arrowX.PStart = this.getPosicion();
-            arrowX.PEnd = vectorEnX;
-            arrowZ.PStart = this.getPosicion();
-            arrowZ.PEnd = vectorEnZ;
-
-            arrowX.updateValues();
-            arrowZ.updateValues();
 
 
             if (!moto.getPosicion().Equals(new Vector3(0, -5000, 0)))
@@ -56,15 +44,29 @@ namespace TGC.Group.Model
 
                 this.acelerar(ElepsedTime);
 
+                comprobarColisionSiguienteUpdate(obstaculos);
+
                 if (verificarGiro(ElepsedTime))
                 {
                     if (verificarGiroDerecha(moto, ElepsedTime)) this.girarDerecha();
                     if (verificarGiroIzquierda(moto, ElepsedTime)) this.girarIzquierda();
                 }
-
-
+                  
             }
 
+        }
+
+
+        private void comprobarColisionSiguienteUpdate(CustomVertex.PositionColored[] obstaculos)
+        {
+            this.avanzar((float)0.1);
+            var res = this.coomprobarColisionPathLight(obstaculos);
+            this.retroceder((float)0.1);
+            if (res)
+            {
+                this.girarDerecha();
+            }
+                
         }
 
         private bool verificarGiro(float ElepsedTime)
@@ -81,7 +83,7 @@ namespace TGC.Group.Model
         private bool verificarPosAdelante(Moto moto, float ElepsedTime)
         {
             double distAhora = this.distancia(moto.getPosicion());
-            this.acelerar(ElepsedTime);
+            this.avanzar(ElepsedTime);
             double distDespues = this.distancia(moto.getPosicion());
             this.retroceder(ElepsedTime);
 
@@ -109,15 +111,11 @@ namespace TGC.Group.Model
         public new void render()
         {
             base.render();
-            //arrowX.render();
-            //arrowZ.render();
         }
 
         public new void dispose()
         {
             base.render();
-            arrowX.render();
-            arrowZ.render();
         }
 
     }
