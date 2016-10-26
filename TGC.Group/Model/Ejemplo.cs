@@ -30,7 +30,10 @@ namespace TGC.Group.Model
         //declaro el mesh que representa a la moto
         private Moto moto;
         private Oponente oponente;
+        private Oponente oponente2;
+        private Oponente oponente3;
 
+        private ControladorIA controladorIA;
 
         private camara camaraInterna;
 
@@ -60,6 +63,19 @@ namespace TGC.Group.Model
             oponente.init();
             oponente.getPathLight().cambiarColor(Color.Red.ToArgb());
 
+            oponente2 = new Oponente(MediaDir, new Vector3(500, -5000, 0));
+            oponente2.init();
+            oponente2.getPathLight().cambiarColor(Color.Green.ToArgb());
+
+            oponente3 = new Oponente(MediaDir, new Vector3(200, -5000, 0));
+            oponente3.init();
+            oponente3.getPathLight().cambiarColor(Color.Yellow.ToArgb());
+
+            controladorIA = new ControladorIA();
+            controladorIA.setJugador(moto);
+            controladorIA.agregarOponente(oponente);
+            controladorIA.agregarOponente(oponente2);
+            controladorIA.agregarOponente(oponente3);
 
             //defino una camara de tercera persona que sigue a la moto
             camaraInterna = new camara(moto);
@@ -83,7 +99,7 @@ namespace TGC.Group.Model
 
             caja = new TgcSceneLoader().loadSceneFromFile(MediaDir + Game.Default.pathCajaMetalica).Meshes[0];
             caja.Scale = new Vector3(0.5f, 0.5f, 0.5f);
-            caja.move(new Vector3(200, -4950, 0));
+            caja.move(new Vector3(200, -4970, 0));
             caja.setColor(Color.Blue);
 
             efectoLuzCaja = TgcShaders.Instance.TgcMeshPointLightShader;
@@ -143,7 +159,7 @@ namespace TGC.Group.Model
             PreUpdate();
             
             moto.update(ElapsedTime);
-            oponente.update(ElapsedTime);
+            controladorIA.updateOponentes(ElapsedTime);
 
             if (!perdido) { 
 
@@ -169,12 +185,13 @@ namespace TGC.Group.Model
             oponente.generarPathLight().CopyTo(path, moto.generarPathLight().Length);
 
             vertexBuffer.SetData(path, 0, LockFlags.None);
-            if (moto.coomprobarColisionPathLight(path))
+            if (controladorIA.comprobarColisionPathLight())
             {
                 perdido = true;
             }
 
             //oponente.seguirObjetivo(moto, ElapsedTime, path);
+            controladorIA.atacarJugador(ElapsedTime);
         }
 
         public override void Render()
@@ -184,7 +201,7 @@ namespace TGC.Group.Model
             //renderizo mi moto en la pantalla
             moto.render();
 
-            oponente.render();
+            controladorIA.renderOponentes();
             
             skyBoxTron.render();
             caja.render();
@@ -198,8 +215,8 @@ namespace TGC.Group.Model
         {
             //destruyo mi moto
             moto.dispose();
-            caja.dispose(); 
-            oponente.dispose();
+            caja.dispose();
+            controladorIA.disposeOponentes();
             
             skyBoxTron.dispose();
 
