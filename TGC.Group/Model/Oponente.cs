@@ -29,7 +29,7 @@ namespace TGC.Group.Model
             tiempo = 0;
         }
 
-        public void seguirObjetivo(Moto moto, float ElepsedTime, CustomVertex.PositionColored[] obstaculos)
+        public void seguirObjetivo(Moto moto, float ElepsedTime, List<CustomVertex.PositionColored[]> obstaculos)
         {
 
             Vector3 vectorEnX = new Vector3(moto.getPosicion().X, -5000, this.getPosicion().Z);
@@ -48,8 +48,8 @@ namespace TGC.Group.Model
 
                 if (verificarGiro(ElepsedTime))
                 {
-                    if (verificarGiroDerecha(moto, ElepsedTime)) this.girarDerecha();
-                    if (verificarGiroIzquierda(moto, ElepsedTime)) this.girarIzquierda();
+                   // if (verificarGiroDerecha(moto, ElepsedTime)) this.girarDerecha();
+                   // if (verificarGiroIzquierda(moto, ElepsedTime)) this.girarIzquierda();
                 }
                   
             }
@@ -57,14 +57,14 @@ namespace TGC.Group.Model
         }
 
 
-        private void comprobarColisionSiguienteUpdate(CustomVertex.PositionColored[] obstaculos)
+        private void comprobarColisionSiguienteUpdate(List<CustomVertex.PositionColored[]> obstaculos)
         {
             this.avanzar((float)0.1);
             var res = this.coomprobarColisionPathLight(obstaculos);
             this.retroceder((float)0.1);
             if (res)
             {
-                this.girarDerecha();
+                //this.girarDerecha();
             }
                 
         }

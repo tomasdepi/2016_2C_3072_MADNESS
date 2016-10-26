@@ -13,6 +13,8 @@ namespace TGC.Group.Model
         private Moto jugador;
         private List<Oponente> oponentes;
 
+        private List<CustomVertex.PositionColored[]> obstaculosPath;
+
         public ControladorIA()
         {
             oponentes = new List<Oponente>();
@@ -32,12 +34,12 @@ namespace TGC.Group.Model
         {
             foreach(Oponente op in this.oponentes)
             {
-                op.seguirObjetivo(this.jugador, ElapsedTime, null);
+                op.seguirObjetivo(this.jugador, ElapsedTime, obstaculosPath);
             }
         }
         
 
-        private List<CustomVertex.PositionColored[]> generarPathObstaculo()
+        private void generarPathObstaculo()
         {
 
             List<CustomVertex.PositionColored[]> listaPath = new List<CustomVertex.PositionColored[]>();
@@ -49,19 +51,16 @@ namespace TGC.Group.Model
                 listaPath.Add(path);
             }
 
-            return listaPath;
+            listaPath.Add(this.jugador.generarPathLight());
+
+            this.obstaculosPath = listaPath;
         }
 
         public bool comprobarColisionPathLight()
         {
-            if (this.jugador.coomprobarColisionPathLight(jugador.generarPathLight())) return true;
-
-            List<CustomVertex.PositionColored[]> obstaculos = generarPathObstaculo();
-
-            foreach (CustomVertex.PositionColored[] path in obstaculos)
-            {
-                if(this.jugador.coomprobarColisionPathLight(path)) return true;
-            }
+            
+            if(this.jugador.coomprobarColisionPathLight(obstaculosPath)) return true;
+            
             return false;
         }
 
@@ -71,6 +70,8 @@ namespace TGC.Group.Model
             {
                 op.update(ElapsedTime);
             }
+
+            this.generarPathObstaculo();
         }
 
 

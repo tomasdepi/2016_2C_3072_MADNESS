@@ -223,18 +223,22 @@ namespace TGC.Group.Model
             moto.move(matriz);
         }
 
-        public bool coomprobarColisionPathLight(CustomVertex.PositionColored[] path)
+        public bool coomprobarColisionPathLight(List<CustomVertex.PositionColored[]> path)
         {
-            for (int i = 0; i < path.Length; i += 3)
+            foreach(CustomVertex.PositionColored[] p in path)
             {
-                Vector3 a = new Vector3(path[i].X, path[i].Y, path[i].Z);
-                Vector3 b = new Vector3(path[i + 1].X, path[i + 1].Y, path[i + 1].Z);
-                Vector3 c = new Vector3(path[i + 2].X, path[i + 2].Y, path[i + 2].Z);
-
-                if (TgcCollisionUtils.testTriangleAABB(a, b, c, this.getBoundingBox()))
+                for (int i = 0; i < p.Length; i += 3)
                 {
-                    return true;
+                    Vector3 a = new Vector3(p[i].X, p[i].Y, p[i].Z);
+                    Vector3 b = new Vector3(p[i + 1].X, p[i + 1].Y, p[i + 1].Z);
+                    Vector3 c = new Vector3(p[i + 2].X, p[i + 2].Y, p[i + 2].Z);
+
+                    if (TgcCollisionUtils.testTriangleAABB(a, b, c, this.getBoundingBox()))
+                    {
+                        return true;
+                    }
                 }
+               
             }
             return false;
         }
