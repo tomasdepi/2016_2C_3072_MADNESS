@@ -7,6 +7,7 @@ using TGC.Core.Direct3D;
 using TGC.Core.Example;
 using TGC.Core.Geometry;
 using TGC.Core.SceneLoader;
+using TGC.Core.Shaders;
 using TGC.Core.Terrain;
 using TGC.Core.Text;
 using TGC.Core.Textures;
@@ -31,17 +32,12 @@ namespace TGC.Group.Model
         private Oponente oponente;
 
 
-        private TgcThirdPersonCamera camaraInterna;
+        private camara camaraInterna;
 
         private SkyBox skyBoxTron;
 
         private bool keyLeftRightPressed;
 
-        //variables de camara
-        private int velocidadRotacionCamara;
-        private float anguloRotado;
-        private bool camaraRotando;
-        private int sentidoRotacion;
 
         //variables path
         private VertexBuffer vertexBuffer;
@@ -49,6 +45,9 @@ namespace TGC.Group.Model
         private TgcText2D texto;
 
         private bool perdido;
+        
+        private TgcMesh caja;
+        private Microsoft.DirectX.Direct3D.Effect efectoLuzCaja;
 
         public override void Init()
         {
@@ -57,21 +56,15 @@ namespace TGC.Group.Model
             moto = new Moto(MediaDir, new Vector3(0, -5000, 0));
             moto.init();
 
-            oponente = new Oponente(MediaDir, new Vector3(100, -5000, 0));
+            oponente = new Oponente(MediaDir, new Vector3(1000, -5000, 0));
             oponente.init();
             oponente.getPathLight().cambiarColor(Color.Red.ToArgb());
 
 
             //defino una camara de tercera persona que sigue a la moto
-            camaraInterna = new TgcThirdPersonCamera(moto.getPosicion(), 60, -170);
+            camaraInterna = new camara(moto);
             Camara = camaraInterna;
             camaraInterna.rotateY(FastMath.ToRad(180));
-
-            keyLeftRightPressed = false;
-            velocidadRotacionCamara = 100; //grados
-
-            anguloRotado = 0;
-            camaraRotando = false;
 
             skyBoxTron = new SkyBox(MediaDir);
             skyBoxTron.init();
@@ -88,51 +81,23 @@ namespace TGC.Group.Model
             vertexBuffer = new VertexBuffer(typeof(CustomVertex.PositionColored), 3, D3DDevice.Instance.Device,
                Usage.Dynamic | Usage.WriteOnly, CustomVertex.PositionColored.Format, Pool.Default);
 
+            caja = new TgcSceneLoader().loadSceneFromFile(MediaDir + Game.Default.pathCajaMetalica).Meshes[0];
+            caja.Scale = new Vector3(0.5f, 0.5f, 0.5f);
+            caja.move(new Vector3(200, -4950, 0));
+            caja.setColor(Color.Blue);
+
+            efectoLuzCaja = TgcShaders.Instance.TgcMeshPointLightShader;
         }
 
-        private void rotarCamaraIzquierda()
-        {
-            anguloRotado = 0;
-            camaraRotando = true;
-            sentidoRotacion = -1;
-        }
-
-        private void rotarCamaraDerecha()
-        {
-            anguloRotado = 0;
-            camaraRotando = true;
-            sentidoRotacion = 1;
-        }
-
-        private void corregirDesfasaje(float rotacion)
-        {
-            camaraInterna.rotateY(FastMath.ToRad(sentidoRotacion * rotacion));
-        }
-
-        private void rotarCamara()
-        {
-            if (camaraRotando)
-            {
-                var rotacion = velocidadRotacionCamara * ElapsedTime;
-                camaraInterna.rotateY(sentidoRotacion * FastMath.ToRad(rotacion));
-                anguloRotado += rotacion;
-                if(anguloRotado >= 90)
-                {
-                    camaraRotando = false;
-                    corregirDesfasaje(anguloRotado - 90);
-                }
-            }
-            
-        }
 
         private void validarGiroIzquierda()
         {
-            if (Input.keyDown(Key.Left) && !keyLeftRightPressed && !camaraRotando)
+            if (Input.keyDown(Key.Left) && !keyLeftRightPressed && !camaraInterna.estaCamaraRotando())
             {
                 if (moto.estaSaltando())
                 {
                     moto.girarIzquierda();
-                    rotarCamaraIzquierda();
+                    camaraInterna.rotarCamaraIzquierda();
                     keyLeftRightPressed = true;
                 }
                
@@ -142,12 +107,12 @@ namespace TGC.Group.Model
 
         private void validarGiroDerecha()
         {
-            if (Input.keyDown(Key.Right) && !keyLeftRightPressed && !camaraRotando)
+            if (Input.keyDown(Key.Right) && !keyLeftRightPressed && !camaraInterna.estaCamaraRotando())
             {
                 if (moto.estaSaltando())
                 {
                     moto.girarDerecha();
-                    rotarCamaraDerecha();
+                    camaraInterna.rotarCamaraDerecha();
                     keyLeftRightPressed = true;
                 }
               
@@ -176,7 +141,7 @@ namespace TGC.Group.Model
         public override void Update()
         {
             PreUpdate();
-
+            
             moto.update(ElapsedTime);
             oponente.update(ElapsedTime);
 
@@ -187,7 +152,7 @@ namespace TGC.Group.Model
                 validarSalto();
                 validarTeclasGiroLevantadas();
 
-                rotarCamara();
+                camaraInterna.rotarCamara(ElapsedTime);
 
                 if (Input.keyDown(Key.Up))
                 {
@@ -195,8 +160,9 @@ namespace TGC.Group.Model
                 }
 
             }
-            //actualizo la camara para que siga a la moto
-            camaraInterna.Target = moto.getPosicion();
+
+            camaraInterna.seguirObjetivo(moto);
+            
 
             CustomVertex.PositionColored[] path = new CustomVertex.PositionColored[moto.generarPathLight().Length + oponente.generarPathLight().Length];
             moto.generarPathLight().CopyTo(path, 0);
@@ -209,9 +175,7 @@ namespace TGC.Group.Model
             }
 
             //oponente.seguirObjetivo(moto, ElapsedTime, path);
-           
         }
-
 
         public override void Render()
         {
@@ -221,10 +185,9 @@ namespace TGC.Group.Model
             moto.render();
 
             oponente.render();
-
             
             skyBoxTron.render();
-
+            caja.render();
             if(perdido)
             texto.render();        
 
@@ -235,13 +198,13 @@ namespace TGC.Group.Model
         {
             //destruyo mi moto
             moto.dispose();
-
+            caja.dispose(); 
             oponente.dispose();
             
             skyBoxTron.dispose();
 
             texto.Dispose();
-            
+
         }
     }
 }
