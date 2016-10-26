@@ -29,5 +29,8 @@
     <Setting Name="pathMoto" Type="System.String" Scope="User">
       <Value Profile="(Default)">MeshCreator\\Meshes\\Vehiculos\\Moto\\Moto-TgcScene.xml</Value>
     </Setting>
+    <Setting Name="pathCajaMetalica" Type="System.String" Scope="User">
+      <Value Profile="(Default)">CajaMetalFuturistica\\CajaMetalFuturistica-TgcScene.xml</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

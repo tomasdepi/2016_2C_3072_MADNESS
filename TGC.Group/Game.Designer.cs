@@ -130,5 +130,17 @@ namespace TGC.Group {
                 this["pathMoto"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("CajaMetalFuturistica\\\\CajaMetalFuturistica-TgcScene.xml")]
+        public string pathCajaMetalica {
+            get {
+                return ((string)(this["pathCajaMetalica"]));
+            }
+            set {
+                this["pathCajaMetalica"] = value;
+            }
+        }
     }
 }
