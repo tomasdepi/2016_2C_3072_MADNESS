@@ -39,6 +39,7 @@ namespace TGC.Group.Model
         private int velocidadSalto;
         private int saltando; //0 no salta, 1 sube, -1 baja 
 
+        private bool jugando;
 
         public Moto(string mediaPath, Vector3 posInicial)
         {
@@ -69,6 +70,7 @@ namespace TGC.Group.Model
             pathlight = new PathLight(moto.Position);
             moto.moveOrientedY(-35);
 
+            jugando = true;
 
             vertexbuffer = new VertexBuffer(typeof(CustomVertex.PositionColored), 3, D3DDevice.Instance.Device,
                Usage.Dynamic | Usage.WriteOnly, CustomVertex.PositionColored.Format, Pool.Default);
@@ -243,6 +245,14 @@ namespace TGC.Group.Model
             return false;
         }
 
+        public bool coomprobarColisionObstaculoEscenario(List<TgcMesh> obs)
+        {
+            foreach(TgcMesh obstaculo in obs)
+            {
+                if (TgcCollisionUtils.testAABBAABB(moto.BoundingBox, obstaculo.BoundingBox)) return true;
+            }
+            return false;
+        }
 
         public double distancia(Vector3 punto)
         {
@@ -269,7 +279,15 @@ namespace TGC.Group.Model
             return saltando == 0 ? true : false; 
         }
         
+        public void perder()
+        {
+            this.jugando = false;
+        }
 
+        public bool haPerdido()
+        {
+            return !jugando;
+        }
 
     }
 }

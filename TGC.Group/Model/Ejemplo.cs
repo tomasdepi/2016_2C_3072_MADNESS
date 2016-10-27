@@ -1,6 +1,8 @@
 ﻿using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX.DirectInput;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using TGC.Core.Collision;
 using TGC.Core.Direct3D;
@@ -40,16 +42,13 @@ namespace TGC.Group.Model
         private SkyBox skyBoxTron;
 
         private bool keyLeftRightPressed;
-
-
-        //variables path
-        private VertexBuffer vertexBuffer;
+        
 
         private TgcText2D texto;
 
         private bool perdido;
         
-        private TgcMesh caja;
+        private List<TgcMesh> cajas;
         private Microsoft.DirectX.Direct3D.Effect efectoLuzCaja;
 
         public override void Init()
@@ -74,8 +73,8 @@ namespace TGC.Group.Model
             controladorIA = new ControladorIA();
             controladorIA.setJugador(moto);
             controladorIA.agregarOponente(oponente);
-            controladorIA.agregarOponente(oponente2);
-            controladorIA.agregarOponente(oponente3);
+            //controladorIA.agregarOponente(oponente2);
+            //controladorIA.agregarOponente(oponente3);
 
             //defino una camara de tercera persona que sigue a la moto
             camaraInterna = new camara(moto);
@@ -94,13 +93,24 @@ namespace TGC.Group.Model
 
             perdido = false;
 
-            vertexBuffer = new VertexBuffer(typeof(CustomVertex.PositionColored), 3, D3DDevice.Instance.Device,
-               Usage.Dynamic | Usage.WriteOnly, CustomVertex.PositionColored.Format, Pool.Default);
+            cajas = new List<TgcMesh>();
 
-            caja = new TgcSceneLoader().loadSceneFromFile(MediaDir + Game.Default.pathCajaMetalica).Meshes[0];
-            caja.Scale = new Vector3(0.5f, 0.5f, 0.5f);
-            caja.move(new Vector3(200, -4970, 0));
-            caja.setColor(Color.Blue);
+            for(int i=0; i<20; i++)
+            {
+
+                Random randomizador = new Random();
+                var z = randomizador.Next(-1000, 1000);
+                var x = randomizador.Next(-1000, 1000);
+
+                TgcMesh caja = new TgcSceneLoader().loadSceneFromFile(MediaDir + Game.Default.pathCajaMetalica).Meshes[0];
+                caja.Scale = new Vector3(0.5f, 0.5f, 0.5f);
+                caja.move(new Vector3(x, -4970, z));
+                caja.setColor(Color.Blue);
+
+                cajas.Add(caja);
+            }
+
+            controladorIA.setObstaculosEscenario(cajas);
 
             efectoLuzCaja = TgcShaders.Instance.TgcMeshPointLightShader;
         }
@@ -180,11 +190,11 @@ namespace TGC.Group.Model
             camaraInterna.seguirObjetivo(moto);
             
 
-            CustomVertex.PositionColored[] path = new CustomVertex.PositionColored[moto.generarPathLight().Length + oponente.generarPathLight().Length];
-            moto.generarPathLight().CopyTo(path, 0);
-            oponente.generarPathLight().CopyTo(path, moto.generarPathLight().Length);
+            //CustomVertex.PositionColored[] path = new CustomVertex.PositionColored[moto.generarPathLight().Length + oponente.generarPathLight().Length];
+            ///moto.generarPathLight().CopyTo(path, 0);
+            //oponente.generarPathLight().CopyTo(path, moto.generarPathLight().Length);
 
-            vertexBuffer.SetData(path, 0, LockFlags.None);
+            //vertexBuffer.SetData(path, 0, LockFlags.None);
             if (controladorIA.comprobarColisionPathLight())
             {
                 perdido = true;
@@ -204,7 +214,10 @@ namespace TGC.Group.Model
             controladorIA.renderOponentes();
             
             skyBoxTron.render();
-            caja.render();
+
+            foreach(TgcMesh caja in cajas)
+                caja.render();
+
             if(perdido)
             texto.render();        
 
@@ -215,7 +228,9 @@ namespace TGC.Group.Model
         {
             //destruyo mi moto
             moto.dispose();
-            caja.dispose();
+
+            foreach (TgcMesh caja in cajas) caja.dispose();
+
             controladorIA.disposeOponentes();
             
             skyBoxTron.dispose();

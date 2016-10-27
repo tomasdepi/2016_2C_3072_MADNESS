@@ -13,15 +13,15 @@ namespace TGC.Group.Model
     public class PathLight
     {
 
-        private Vector3[] puntos = new Vector3[2000];
+        private Vector3[] puntos;
         private int cantPuntos;
-        private Vector3 posMoto = new Vector3();
         private int altura;
 
         private int color = Color.Blue.ToArgb();
 
         public PathLight(Vector3 posMoto)
         {
+            puntos = new Vector3[2000];
             altura = 15;
             cantPuntos = 2;
             puntos[0] = posMoto;

@@ -36,6 +36,11 @@ namespace TGC.Group.Model
 
         }
 
+        public TgcSkyBox getSkyBox()
+        {
+            return this.skybox;
+        }
+
         public void render()
         {
             skybox.render();

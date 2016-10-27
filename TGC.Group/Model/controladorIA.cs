@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TGC.Core.SceneLoader;
 
 namespace TGC.Group.Model
 {
@@ -14,6 +15,7 @@ namespace TGC.Group.Model
         private List<Oponente> oponentes;
 
         private List<CustomVertex.PositionColored[]> obstaculosPath;
+        private List<TgcMesh> obstaculosEscenario;
 
         public ControladorIA()
         {
@@ -28,6 +30,11 @@ namespace TGC.Group.Model
         public void setJugador(Moto j)
         {
             this.jugador = j;
+        }
+
+        public void setObstaculosEscenario(List<TgcMesh> obs)
+        {
+            this.obstaculosEscenario = obs;
         }
 
         public void atacarJugador(float ElapsedTime)
@@ -60,7 +67,7 @@ namespace TGC.Group.Model
         {
             
             if(this.jugador.coomprobarColisionPathLight(obstaculosPath)) return true;
-            
+            if (this.jugador.coomprobarColisionObstaculoEscenario(obstaculosEscenario)) return true;
             return false;
         }
 
@@ -68,31 +75,34 @@ namespace TGC.Group.Model
         {
             foreach(Oponente op in this.oponentes)
             {
-                op.update(ElapsedTime);
+               if(!op.haPerdido()) op.update(ElapsedTime);
             }
 
             this.generarPathObstaculo();
-        }
 
+            foreach (Oponente op in this.oponentes)
+            {
+                if (op.coomprobarColisionPathLight(obstaculosPath)) op.perder();
+                if (op.coomprobarColisionObstaculoEscenario(obstaculosEscenario)) op.perder();
+            }
+        }
 
         public void renderOponentes()
         {
-            oponentes.ForEach(renderOponente);
-        }
-
-        private void renderOponente(Oponente o)
-        {
-            o.render();
+            foreach (Oponente o in oponentes)
+            {
+                o.render();
+            }
         }
 
         public void disposeOponentes()
         {
-            oponentes.ForEach(disposeOponente);
+            foreach(Oponente o in oponentes)
+            {
+                o.dispose();
+            }
         }
 
-        private void disposeOponente(Oponente o)
-        {
-            o.dispose();
-        }
+        
     }
 }

@@ -32,9 +32,6 @@ namespace TGC.Group.Model
         public void seguirObjetivo(Moto moto, float ElepsedTime, List<CustomVertex.PositionColored[]> obstaculos)
         {
 
-            Vector3 vectorEnX = new Vector3(moto.getPosicion().X, -5000, this.getPosicion().Z);
-            Vector3 vectorEnZ = new Vector3(this.getPosicion().X, -5000, moto.getPosicion().Z);
-    
             var distanciaEnX = moto.getPosicion().X - this.getPosicion().X;
             var distanciaEnZ = moto.getPosicion().Z - this.getPosicion().Z;
 
@@ -48,8 +45,8 @@ namespace TGC.Group.Model
 
                 if (verificarGiro(ElepsedTime))
                 {
-                   // if (verificarGiroDerecha(moto, ElepsedTime)) this.girarDerecha();
-                   // if (verificarGiroIzquierda(moto, ElepsedTime)) this.girarIzquierda();
+                    if (verificarGiroDerecha(moto, ElepsedTime)) this.girarDerecha();
+                    if (verificarGiroIzquierda(moto, ElepsedTime)) this.girarIzquierda();
                 }
                   
             }
@@ -60,13 +57,40 @@ namespace TGC.Group.Model
         private void comprobarColisionSiguienteUpdate(List<CustomVertex.PositionColored[]> obstaculos)
         {
             this.avanzar((float)0.1);
-            var res = this.coomprobarColisionPathLight(obstaculos);
+            var resAvanzar = this.coomprobarColisionPathLight(obstaculos);
             this.retroceder((float)0.1);
-            if (res)
+
+            if (!resAvanzar) return;
+
+            Random random = new Random();
+            int p = random.Next();
+
+            if(p%2 == 0)
             {
-                //this.girarDerecha();
+                this.girarDerecha();
+                this.avanzar((float)0.1);
+                var res = this.coomprobarColisionPathLight(obstaculos);
+                this.retroceder((float)0.1);
+
+                if (!res) return;
+
+                this.girarIzquierda();
+                this.girarIzquierda();
             }
-                
+            else
+            {
+                this.girarIzquierda();
+                this.avanzar((float)0.1);
+                var res = this.coomprobarColisionPathLight(obstaculos);
+                this.retroceder((float)0.1);
+
+                if (!res) return;
+
+                this.girarDerecha();
+                this.girarDerecha();
+
+            }
+
         }
 
         private bool verificarGiro(float ElepsedTime)
