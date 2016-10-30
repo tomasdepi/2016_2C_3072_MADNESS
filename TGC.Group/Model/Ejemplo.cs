@@ -29,7 +29,6 @@ namespace TGC.Group.Model
             Description = Game.Default.Description;
         }
 
-        //declaro el mesh que representa a la moto
         private Moto moto;
         private Oponente oponente;
         private Oponente oponente2;
@@ -42,41 +41,41 @@ namespace TGC.Group.Model
         private SkyBox skyBoxTron;
 
         private bool keyLeftRightPressed;
-        
 
         private TgcText2D texto;
+        private TgcText2D textoModoDios;
 
         private bool perdido;
-        
+
         private List<TgcMesh> cajas;
-        private Microsoft.DirectX.Direct3D.Effect efectoLuzCaja;
+
+        private TgcPlane pisoPlane;
+        private TgcMesh piso;
+        private TgcTexture texturaPiso;
+
+        private TgcMesh cajaConLuz;
+        private Microsoft.DirectX.Direct3D.Effect efectoLuz;
+        private Vector3[] posLuz;
+        private Color[] colorLuz; 
 
         public override void Init()
         {
             var d3dDevice = D3DDevice.Instance.Device;
 
-            moto = new Moto(MediaDir, new Vector3(0, -5000, 0));
+            moto = new Moto(MediaDir, new Vector3(0, 0, 0));
             moto.init();
 
-            oponente = new Oponente(MediaDir, new Vector3(1000, -5000, 0));
-            oponente.init();
-            oponente.getPathLight().cambiarColor(Color.Red.ToArgb());
+            texturaPiso = TgcTexture.createTexture(D3DDevice.Instance.Device, MediaDir + "SkyBoxTron\\bottom.png");
+            pisoPlane = new TgcPlane();
+            pisoPlane.Origin = new Vector3(-5000, 0, -5000);
+            pisoPlane.Size = new Vector3(10000, 0, 10000);
+            pisoPlane.Orientation = TgcPlane.Orientations.XZplane;
+            pisoPlane.setTexture(texturaPiso);
+            pisoPlane.updateValues();
 
-            oponente2 = new Oponente(MediaDir, new Vector3(500, -5000, 0));
-            oponente2.init();
-            oponente2.getPathLight().cambiarColor(Color.Green.ToArgb());
+            piso = pisoPlane.toMesh("piso");
+            piso.AutoTransformEnable = true;
 
-            oponente3 = new Oponente(MediaDir, new Vector3(200, -5000, 0));
-            oponente3.init();
-            oponente3.getPathLight().cambiarColor(Color.Yellow.ToArgb());
-
-            controladorIA = new ControladorIA();
-            controladorIA.setJugador(moto);
-            controladorIA.agregarOponente(oponente);
-            //controladorIA.agregarOponente(oponente2);
-            //controladorIA.agregarOponente(oponente3);
-
-            //defino una camara de tercera persona que sigue a la moto
             camaraInterna = new camara(moto);
             Camara = camaraInterna;
             camaraInterna.rotateY(FastMath.ToRad(180));
@@ -87,15 +86,37 @@ namespace TGC.Group.Model
             texto = new TgcText2D();
             texto.Color = Color.Red;
             texto.Align = TgcText2D.TextAlign.LEFT;
-            texto.Text = "Perdiste";
-            texto.Size = new Size(500, 200);
-            texto.Position = new Point(650, 250);
+            texto.Text = "Perdiste, toca la tecla R para reiniciar";
+            texto.Size = new Size(700, 400);
+            texto.Position = new Point(550, 150);
+
+            textoModoDios = new TgcText2D();
+            textoModoDios.Color = Color.Red;
+            textoModoDios.Text = "Modo Dios Activado";
+            textoModoDios.Position = new Point(0, 30);
+            textoModoDios.Size = new Size(500, 200);
+
+            controladorIA = new ControladorIA();
+            
+            this.generarOponentes();
 
             perdido = false;
 
             cajas = new List<TgcMesh>();
+            cajaConLuz = new TgcSceneLoader().loadSceneFromFile(MediaDir + Game.Default.pathCajaMetalica).Meshes[0];
+            cajaConLuz.Position = new Vector3(0, 0, -200);
+            cajaConLuz.Scale = new Vector3(0.8f, 0.8f, 0.8f);
+            efectoLuz = TgcShaders.loadEffect(ShadersDir + "MultiDiffuseLights.fx");
 
-            for(int i=0; i<20; i++)
+            this.generarCajas(20);
+
+            controladorIA.setObstaculosEscenario(cajas);
+
+        }
+
+        private void generarCajas(int cantidad)
+        {
+            for (int i = 0; i < cantidad; i++)
             {
 
                 Random randomizador = new Random();
@@ -104,17 +125,32 @@ namespace TGC.Group.Model
 
                 TgcMesh caja = new TgcSceneLoader().loadSceneFromFile(MediaDir + Game.Default.pathCajaMetalica).Meshes[0];
                 caja.Scale = new Vector3(0.5f, 0.5f, 0.5f);
-                caja.move(new Vector3(x, -4970, z));
+                caja.move(new Vector3(x, 0, z));
                 caja.setColor(Color.Blue);
 
                 cajas.Add(caja);
             }
-
-            controladorIA.setObstaculosEscenario(cajas);
-
-            efectoLuzCaja = TgcShaders.Instance.TgcMeshPointLightShader;
         }
 
+        private void generarOponentes()
+        {
+            oponente = new Oponente(MediaDir, new Vector3(1000, 0, -100));
+            oponente2 = new Oponente(MediaDir, new Vector3(500, 0, -400));
+            oponente3 = new Oponente(MediaDir, new Vector3(200, 0, -600));
+
+            oponente.init();
+            oponente2.init();
+            oponente3.init();
+
+            oponente.getPathLight().cambiarColor(Color.Red.ToArgb());
+            oponente2.getPathLight().cambiarColor(Color.Green.ToArgb());
+            oponente3.getPathLight().cambiarColor(Color.Yellow.ToArgb());
+            
+            controladorIA.setJugador(moto);
+            controladorIA.agregarOponente(oponente);
+            controladorIA.agregarOponente(oponente2);
+            controladorIA.agregarOponente(oponente3);
+        }
 
         private void validarGiroIzquierda()
         {
@@ -180,35 +216,64 @@ namespace TGC.Group.Model
 
                 camaraInterna.rotarCamara(ElapsedTime);
 
+                if (Input.keyUp(Key.G))
+                {
+                    moto.activarModoDios();
+                }
+            
                 if (Input.keyDown(Key.Up))
                 {
                     moto.acelerar(ElapsedTime);
                 }
 
             }
+            else
+            {
+                if (Input.keyUp(Key.R))
+                {
+                    this.reiniciarJuego();
+                }
+            }
 
             camaraInterna.seguirObjetivo(moto);
             
-
-            //CustomVertex.PositionColored[] path = new CustomVertex.PositionColored[moto.generarPathLight().Length + oponente.generarPathLight().Length];
-            ///moto.generarPathLight().CopyTo(path, 0);
-            //oponente.generarPathLight().CopyTo(path, moto.generarPathLight().Length);
-
-            //vertexBuffer.SetData(path, 0, LockFlags.None);
             if (controladorIA.comprobarColisionPathLight())
             {
                 perdido = true;
             }
-
-            //oponente.seguirObjetivo(moto, ElapsedTime, path);
+            
             controladorIA.atacarJugador(ElapsedTime);
         }
 
         public override void Render()
         {
             PreRender();
+            /*
+            piso.Effect = efectoLuz;
+            piso.Technique = "MultiDiffuseLightsTechnique";
 
-            //renderizo mi moto en la pantalla
+            var lightColors = new ColorValue[1];
+            var pointLightPositions = new Vector4[1];
+            var pointLightIntensity = new float[1];
+            var pointLightAttenuation = new float[1];
+
+            lightColors[0] = ColorValue.FromColor(Color.White);
+            pointLightPositions[0] = TgcParserUtils.vector3ToVector4(cajaConLuz.Position);
+            pointLightIntensity[0] = 40;
+            pointLightAttenuation[0] = (float)0.15;
+
+            piso.UpdateMeshTransform();
+
+            piso.Effect.SetValue("lightColor", lightColors);
+            piso.Effect.SetValue("lightPosition", pointLightPositions);
+            piso.Effect.SetValue("lightIntensity", pointLightIntensity);
+            piso.Effect.SetValue("lightAttenuation", pointLightAttenuation);
+            piso.Effect.SetValue("materialEmissiveColor", Color.Black.ToArgb());
+            piso.Effect.SetValue("materialDiffuseColor", Color.White.ToArgb());
+            */
+
+            piso.render();
+
             moto.render();
 
             controladorIA.renderOponentes();
@@ -219,14 +284,18 @@ namespace TGC.Group.Model
                 caja.render();
 
             if(perdido)
-            texto.render();        
+            texto.render();
+            
+
+            if (moto.esDios()) textoModoDios.render();
+
+            cajaConLuz.render();
 
             PostRender();
         }
 
         public override void Dispose()
         {
-            //destruyo mi moto
             moto.dispose();
 
             foreach (TgcMesh caja in cajas) caja.dispose();
@@ -236,7 +305,34 @@ namespace TGC.Group.Model
             skyBoxTron.dispose();
 
             texto.Dispose();
+            textoModoDios.Dispose();
 
+            cajaConLuz.dispose();
+
+            pisoPlane.dispose();
+            piso.dispose();
+        }
+
+
+        public void reiniciarJuego()
+        {
+            
+            cajas.Clear();
+            this.generarCajas(30);
+            
+            controladorIA.getOponentes().Clear();
+            
+            generarOponentes();
+
+            camaraInterna = new camara(moto);
+            Camara = camaraInterna;
+            camaraInterna.rotateY(FastMath.ToRad(180));
+
+            moto = new Moto(MediaDir, new Vector3(0, 0, 0));
+            moto.init();
+            controladorIA.setJugador(moto);
+
+            perdido = false;
         }
     }
 }

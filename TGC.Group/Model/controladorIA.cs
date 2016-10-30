@@ -41,7 +41,7 @@ namespace TGC.Group.Model
         {
             foreach(Oponente op in this.oponentes)
             {
-                op.seguirObjetivo(this.jugador, ElapsedTime, obstaculosPath);
+                if(!op.haPerdido())op.seguirObjetivo(this.jugador, ElapsedTime, obstaculosPath);
             }
         }
         
@@ -101,6 +101,11 @@ namespace TGC.Group.Model
             {
                 o.dispose();
             }
+        }
+
+        public List<Oponente> getOponentes()
+        {
+            return this.oponentes;
         }
 
         

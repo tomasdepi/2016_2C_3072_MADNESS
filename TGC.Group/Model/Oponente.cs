@@ -32,18 +32,12 @@ namespace TGC.Group.Model
         public void seguirObjetivo(Moto moto, float ElepsedTime, List<CustomVertex.PositionColored[]> obstaculos)
         {
 
-            var distanciaEnX = moto.getPosicion().X - this.getPosicion().X;
-            var distanciaEnZ = moto.getPosicion().Z - this.getPosicion().Z;
-
-
-            if (!moto.getPosicion().Equals(new Vector3(0, -5000, 0)))
+            if (!moto.getPosicion().Equals(new Vector3(0, 0, 0)))
             { //posicion inicial
 
                 this.acelerar(ElepsedTime);
-
-                comprobarColisionSiguienteUpdate(obstaculos);
-
-                if (verificarGiro(ElepsedTime))
+              
+                if (verificarGiro(ElepsedTime) && comprobarColisionSiguienteUpdate(obstaculos))
                 {
                     if (verificarGiroDerecha(moto, ElepsedTime)) this.girarDerecha();
                     if (verificarGiroIzquierda(moto, ElepsedTime)) this.girarIzquierda();
@@ -54,13 +48,13 @@ namespace TGC.Group.Model
         }
 
 
-        private void comprobarColisionSiguienteUpdate(List<CustomVertex.PositionColored[]> obstaculos)
+        private bool comprobarColisionSiguienteUpdate(List<CustomVertex.PositionColored[]> obstaculos)
         {
             this.avanzar((float)0.1);
             var resAvanzar = this.coomprobarColisionPathLight(obstaculos);
             this.retroceder((float)0.1);
 
-            if (!resAvanzar) return;
+            if (!resAvanzar) return true;
 
             Random random = new Random();
             int p = random.Next();
@@ -72,7 +66,7 @@ namespace TGC.Group.Model
                 var res = this.coomprobarColisionPathLight(obstaculos);
                 this.retroceder((float)0.1);
 
-                if (!res) return;
+                if (!res) return true;
 
                 this.girarIzquierda();
                 this.girarIzquierda();
@@ -84,13 +78,13 @@ namespace TGC.Group.Model
                 var res = this.coomprobarColisionPathLight(obstaculos);
                 this.retroceder((float)0.1);
 
-                if (!res) return;
+                if (!res) return true;
 
                 this.girarDerecha();
                 this.girarDerecha();
 
             }
-
+            return false;
         }
 
         private bool verificarGiro(float ElepsedTime)

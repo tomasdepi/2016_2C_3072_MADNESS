@@ -40,6 +40,7 @@ namespace TGC.Group.Model
         private int saltando; //0 no salta, 1 sube, -1 baja 
 
         private bool jugando;
+        private bool modoDios;
 
         public Moto(string mediaPath, Vector3 posInicial)
         {
@@ -71,6 +72,7 @@ namespace TGC.Group.Model
             moto.moveOrientedY(-35);
 
             jugando = true;
+            modoDios = false;
 
             vertexbuffer = new VertexBuffer(typeof(CustomVertex.PositionColored), 3, D3DDevice.Instance.Device,
                Usage.Dynamic | Usage.WriteOnly, CustomVertex.PositionColored.Format, Pool.Default);
@@ -227,8 +229,10 @@ namespace TGC.Group.Model
 
         public bool coomprobarColisionPathLight(List<CustomVertex.PositionColored[]> path)
         {
-            foreach(CustomVertex.PositionColored[] p in path)
+            if (esDios()) return false;
+            foreach (CustomVertex.PositionColored[] p in path)
             {
+                
                 for (int i = 0; i < p.Length; i += 3)
                 {
                     Vector3 a = new Vector3(p[i].X, p[i].Y, p[i].Z);
@@ -247,6 +251,7 @@ namespace TGC.Group.Model
 
         public bool coomprobarColisionObstaculoEscenario(List<TgcMesh> obs)
         {
+            if (esDios()) return false;
             foreach(TgcMesh obstaculo in obs)
             {
                 if (TgcCollisionUtils.testAABBAABB(moto.BoundingBox, obstaculo.BoundingBox)) return true;
@@ -289,5 +294,14 @@ namespace TGC.Group.Model
             return !jugando;
         }
 
+        public void activarModoDios()
+        {
+            this.modoDios = this.modoDios ? false : true;
+        }
+
+        public bool esDios()
+        {
+            return this.modoDios;
+        }
     }
 }
