@@ -4,13 +4,11 @@ using Microsoft.DirectX.DirectInput;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using TGC.Core.Collision;
 using TGC.Core.Direct3D;
 using TGC.Core.Example;
 using TGC.Core.Geometry;
 using TGC.Core.SceneLoader;
 using TGC.Core.Shaders;
-using TGC.Core.Terrain;
 using TGC.Core.Text;
 using TGC.Core.Textures;
 using TGC.Core.Utils;
@@ -114,7 +112,7 @@ namespace TGC.Group.Model
             this.generarCajas(20);
 
             controladorIA.setObstaculosEscenario(cajas);
-
+                
             gestorPowerUps = new GestorPowerUps();
 
         }
@@ -132,6 +130,7 @@ namespace TGC.Group.Model
                 caja.Scale = new Vector3(0.5f, 0.5f, 0.5f);
                 caja.move(new Vector3(x, 0, z));
                 caja.setColor(Color.Blue);
+                caja.AutoTransformEnable = true;
 
                 cajas.Add(caja);
             }
@@ -163,7 +162,7 @@ namespace TGC.Group.Model
             {
                 if (moto.estaSaltando())
                 {
-                    moto.girarIzquierda();
+                    moto.girarIzquierda(true);
                     camaraInterna.rotarCamaraIzquierda();
                     keyLeftRightPressed = true;
                 }
@@ -178,7 +177,7 @@ namespace TGC.Group.Model
             {
                 if (moto.estaSaltando())
                 {
-                    moto.girarDerecha();
+                    moto.girarDerecha(true);
                     camaraInterna.rotarCamaraDerecha();
                     keyLeftRightPressed = true;
                 }
@@ -258,32 +257,63 @@ namespace TGC.Group.Model
         public override void Render()
         {
             PreRender();
+            
+            Microsoft.DirectX.Direct3D.Effect shaderActual = efectoLuz;
+            string tecnica = "MultiDiffuseLightsTechnique";
+            
+/*
+            foreach (TgcMesh m in piso.MeshInstances)
+            {
+                m.Effect = efectoLuz;
+                m.Technique = tecnica;
+            }
+            */
+            //piso.UpdateMeshTransform();
             /*
-            piso.Effect = efectoLuz;
-            piso.Technique = "MultiDiffuseLightsTechnique";
+            foreach (TgcMesh caja in cajas)
+            {
+                caja.Effect = shaderActual;
+                caja.Technique = tecnica;
+            }
 
             var lightColors = new ColorValue[1];
             var pointLightPositions = new Vector4[1];
             var pointLightIntensity = new float[1];
             var pointLightAttenuation = new float[1];
 
-            lightColors[0] = ColorValue.FromColor(Color.White);
+            lightColors[0] = ColorValue.FromColor(Color.Blue);
             pointLightPositions[0] = TgcParserUtils.vector3ToVector4(cajaConLuz.Position);
-            pointLightIntensity[0] = 40;
-            pointLightAttenuation[0] = (float)0.15;
+            pointLightIntensity[0] = 100;
+            pointLightAttenuation[0] = (float)0.1;
 
-            piso.UpdateMeshTransform();
+            foreach (TgcMesh caja in cajas)
+            {
+                caja.UpdateMeshTransform();
 
-            piso.Effect.SetValue("lightColor", lightColors);
-            piso.Effect.SetValue("lightPosition", pointLightPositions);
-            piso.Effect.SetValue("lightIntensity", pointLightIntensity);
-            piso.Effect.SetValue("lightAttenuation", pointLightAttenuation);
-            piso.Effect.SetValue("materialEmissiveColor", Color.Black.ToArgb());
-            piso.Effect.SetValue("materialDiffuseColor", Color.White.ToArgb());
-           */
+                caja.Effect.SetValue("lightColor", lightColors);
+                caja.Effect.SetValue("lightPosition", pointLightPositions);
+                caja.Effect.SetValue("lightIntensity", pointLightIntensity);
+                caja.Effect.SetValue("lightAttenuation", pointLightAttenuation);
+                caja.Effect.SetValue("materialEmissiveColor", Color.Black.ToArgb());
+                caja.Effect.SetValue("materialDiffuseColor", Color.White.ToArgb());
+
+                caja.render();
+            }*/
+            /*
+            foreach(TgcMesh m in piso.MeshInstances)
+            {
+                m.Effect.SetValue("lightColor", lightColors);
+                m.Effect.SetValue("lightPosition", pointLightPositions);
+                m.Effect.SetValue("lightIntensity", pointLightIntensity);
+                m.Effect.SetValue("lightAttenuation", pointLightAttenuation);
+                m.Effect.SetValue("materialEmissiveColor", Color.Black.ToArgb());
+                m.Effect.SetValue("materialDiffuseColor", Color.White.ToArgb());
+
+                m.render();
+            }*/
 
             piso.render();
-
+            
             moto.render();
 
             controladorIA.renderOponentes();
@@ -320,6 +350,7 @@ namespace TGC.Group.Model
             textoModoDios.Dispose();
 
             cajaConLuz.dispose();
+            efectoLuz.Dispose();
 
             gestorPowerUps.dispose();
 

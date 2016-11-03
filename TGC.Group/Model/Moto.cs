@@ -104,25 +104,25 @@ namespace TGC.Group.Model
             moto.dispose();
         }
 
-        public void girarIzquierda()
+        public void girarIzquierda(bool generoPath)
         {
             moto.moveOrientedY(35);
             var rotAngle = FastMath.ToRad(-90);
             moto.rotateY(rotAngle);
             
-            pathlight.agregarSegmento(moto.Position);
+            if(generoPath)pathlight.agregarSegmento(moto.Position);
             moto.moveOrientedY(-35);
 
             rotar(-1);
         }
 
-        public void girarDerecha()
+        public void girarDerecha(bool generoPath)
         {
             moto.moveOrientedY(35);
             var rotAngle = FastMath.ToRad(90);
             moto.rotateY(rotAngle);
 
-            pathlight.agregarSegmento(moto.Position);
+            if(generoPath)pathlight.agregarSegmento(moto.Position);
             moto.moveOrientedY(-35);
 
             rotar(1);

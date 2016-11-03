@@ -37,13 +37,13 @@ namespace TGC.Group.Model
             { //posicion inicial
 
                 this.acelerar(ElepsedTime);
-
+                
                 comprobarColisionSiguienteUpdate(obstaculos, cajas);
-
+                
                 if (verificarGiro(ElepsedTime))
                 {
-                    if (verificarGiroDerecha(moto, ElepsedTime)) this.girarDerecha();
-                    if (verificarGiroIzquierda(moto, ElepsedTime)) this.girarIzquierda();
+                    if (verificarGiroDerecha(moto, ElepsedTime)) this.girarDerecha(true);
+                    if (verificarGiroIzquierda(moto, ElepsedTime)) this.girarIzquierda(true);
                 }
                   
             }
@@ -64,27 +64,27 @@ namespace TGC.Group.Model
 
             if(p%2 == 0)
             {
-                this.girarDerecha();
+                this.girarDerecha(true);
                 this.avanzar((float)0.1);
                 var res = this.coomprobarColisionPathLight(obstaculos) || this.coomprobarColisionObstaculoEscenario(cajas);
                 this.retroceder((float)0.1);
 
                 if (!res) return true;
 
-                this.girarIzquierda();
-                this.girarIzquierda();
+                this.girarIzquierda(true);
+                this.girarIzquierda(true);
             }
             else
             {
-                this.girarIzquierda();
+                this.girarIzquierda(true);
                 this.avanzar((float)0.1);
                 var res = this.coomprobarColisionPathLight(obstaculos) || this.coomprobarColisionObstaculoEscenario(cajas);
                 this.retroceder((float)0.1);
 
                 if (!res) return true;
 
-                this.girarDerecha();
-                this.girarDerecha();
+                this.girarDerecha(true);
+                this.girarDerecha(true);
 
             }
             return false;
@@ -113,18 +113,18 @@ namespace TGC.Group.Model
 
         private bool verificarGiroIzquierda(Moto moto, float ElepsedTime)
         {
-            this.girarIzquierda();
+            this.girarIzquierda(false);
             bool resu = verificarPosAdelante(moto, ElepsedTime);
-            this.girarDerecha();
+            this.girarDerecha(false);
             this.retroceder(ElepsedTime);
             return resu;
         }
 
         private bool verificarGiroDerecha(Moto moto, float ElepsedTime)
         {
-            this.girarDerecha();
+            this.girarDerecha(false);
             bool resu = verificarPosAdelante(moto, ElepsedTime);
-            this.girarIzquierda();
+            this.girarIzquierda(false);
             this.retroceder(ElepsedTime);
             return resu;
         }
@@ -143,6 +143,7 @@ namespace TGC.Group.Model
             D3DDevice.Instance.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, this.getPathLight().getCantTriangulos());
 
         }*/
+
 
     }
 }
