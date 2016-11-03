@@ -56,7 +56,10 @@ namespace TGC.Group.Model
         private TgcMesh cajaConLuz;
         private Microsoft.DirectX.Direct3D.Effect efectoLuz;
         private Vector3[] posLuz;
-        private Color[] colorLuz; 
+        private Color[] colorLuz;
+
+        private GestorPowerUps gestorPowerUps;
+        
 
         public override void Init()
         {
@@ -97,8 +100,8 @@ namespace TGC.Group.Model
             textoModoDios.Size = new Size(500, 200);
 
             controladorIA = new ControladorIA();
-            
-            this.generarOponentes();
+             
+            this.generarOponentes(); 
 
             perdido = false;
 
@@ -111,6 +114,8 @@ namespace TGC.Group.Model
             this.generarCajas(20);
 
             controladorIA.setObstaculosEscenario(cajas);
+
+            gestorPowerUps = new GestorPowerUps();
 
         }
 
@@ -134,9 +139,9 @@ namespace TGC.Group.Model
 
         private void generarOponentes()
         {
-            oponente = new Oponente(MediaDir, new Vector3(1000, 0, -100));
-            oponente2 = new Oponente(MediaDir, new Vector3(500, 0, -400));
-            oponente3 = new Oponente(MediaDir, new Vector3(200, 0, -600));
+            oponente = new Oponente(MediaDir, new Vector3(2000, 0, -1000));
+            oponente2 = new Oponente(MediaDir, new Vector3(-2000, 0, -2200));
+            oponente3 = new Oponente(MediaDir, new Vector3(1500, 0, -1600));
 
             oponente.init();
             oponente2.init();
@@ -207,6 +212,11 @@ namespace TGC.Group.Model
             moto.update(ElapsedTime);
             controladorIA.updateOponentes(ElapsedTime);
 
+            var motos = new List<Moto>();
+            motos.Add(moto);
+
+            gestorPowerUps.actualizar(ElapsedTime, motos);
+
             if (!perdido) { 
 
                 validarGiroDerecha();
@@ -270,7 +280,7 @@ namespace TGC.Group.Model
             piso.Effect.SetValue("lightAttenuation", pointLightAttenuation);
             piso.Effect.SetValue("materialEmissiveColor", Color.Black.ToArgb());
             piso.Effect.SetValue("materialDiffuseColor", Color.White.ToArgb());
-            */
+           */
 
             piso.render();
 
@@ -289,7 +299,9 @@ namespace TGC.Group.Model
 
             if (moto.esDios()) textoModoDios.render();
 
-            cajaConLuz.render();
+            //cajaConLuz.render();
+
+            gestorPowerUps.render(ElapsedTime);
 
             PostRender();
         }
@@ -309,8 +321,11 @@ namespace TGC.Group.Model
 
             cajaConLuz.dispose();
 
+            gestorPowerUps.dispose();
+
             pisoPlane.dispose();
             piso.dispose();
+            
         }
 
 

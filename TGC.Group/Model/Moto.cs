@@ -20,7 +20,7 @@ namespace TGC.Group.Model
 
         private TgcMesh moto;
         private string MediaDir;
-        
+
 
         private PathLight pathlight;
 
@@ -31,7 +31,7 @@ namespace TGC.Group.Model
         private float velocidadRotacion;
         private float anguloRotado;
 
-        private int velocidadMaxima;
+        public int velocidadMaxima { set; get; }
         private float velocidad;
 
         private float posY; //para saltar
@@ -40,7 +40,7 @@ namespace TGC.Group.Model
         private int saltando; //0 no salta, 1 sube, -1 baja 
 
         private bool jugando;
-        private bool modoDios;
+        public bool modoDios { set; get; }
 
         public Moto(string mediaPath, Vector3 posInicial)
         {
@@ -172,7 +172,6 @@ namespace TGC.Group.Model
             
         }
 
-
         public Vector3 getPosicion()
         {
             return moto.Position;
@@ -302,6 +301,16 @@ namespace TGC.Group.Model
         public bool esDios()
         {
             return this.modoDios;
+        }
+
+        public TgcMesh getMesh()
+        {
+            return this.moto;
+        }
+
+        public VertexBuffer getVertexBuffer()
+        {
+            return this.vertexbuffer;
         }
     }
 }

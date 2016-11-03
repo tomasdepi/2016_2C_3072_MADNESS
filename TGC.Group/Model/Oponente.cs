@@ -6,7 +6,9 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TGC.Core.Direct3D;
 using TGC.Core.Geometry;
+using TGC.Core.SceneLoader;
 using TGC.Core.Text;
 using TGC.Core.Utils;
 
@@ -25,19 +27,20 @@ namespace TGC.Group.Model
         public Oponente(string mediaPath, Vector3 posInicial) : base(mediaPath, posInicial)
         {
             MediaDir = mediaPath;
-
             tiempo = 0;
         }
 
-        public void seguirObjetivo(Moto moto, float ElepsedTime, List<CustomVertex.PositionColored[]> obstaculos)
+        public void seguirObjetivo(Moto moto, float ElepsedTime, List<CustomVertex.PositionColored[]> obstaculos, List<TgcMesh> cajas)
         {
 
             if (!moto.getPosicion().Equals(new Vector3(0, 0, 0)))
             { //posicion inicial
 
                 this.acelerar(ElepsedTime);
-              
-                if (verificarGiro(ElepsedTime) && comprobarColisionSiguienteUpdate(obstaculos))
+
+                comprobarColisionSiguienteUpdate(obstaculos, cajas);
+
+                if (verificarGiro(ElepsedTime))
                 {
                     if (verificarGiroDerecha(moto, ElepsedTime)) this.girarDerecha();
                     if (verificarGiroIzquierda(moto, ElepsedTime)) this.girarIzquierda();
@@ -48,10 +51,10 @@ namespace TGC.Group.Model
         }
 
 
-        private bool comprobarColisionSiguienteUpdate(List<CustomVertex.PositionColored[]> obstaculos)
+        private bool comprobarColisionSiguienteUpdate(List<CustomVertex.PositionColored[]> obstaculos , List<TgcMesh> cajas)
         {
             this.avanzar((float)0.1);
-            var resAvanzar = this.coomprobarColisionPathLight(obstaculos);
+            var resAvanzar = this.coomprobarColisionPathLight(obstaculos) || this.coomprobarColisionObstaculoEscenario(cajas);
             this.retroceder((float)0.1);
 
             if (!resAvanzar) return true;
@@ -63,7 +66,7 @@ namespace TGC.Group.Model
             {
                 this.girarDerecha();
                 this.avanzar((float)0.1);
-                var res = this.coomprobarColisionPathLight(obstaculos);
+                var res = this.coomprobarColisionPathLight(obstaculos) || this.coomprobarColisionObstaculoEscenario(cajas);
                 this.retroceder((float)0.1);
 
                 if (!res) return true;
@@ -75,7 +78,7 @@ namespace TGC.Group.Model
             {
                 this.girarIzquierda();
                 this.avanzar((float)0.1);
-                var res = this.coomprobarColisionPathLight(obstaculos);
+                var res = this.coomprobarColisionPathLight(obstaculos) || this.coomprobarColisionObstaculoEscenario(cajas);
                 this.retroceder((float)0.1);
 
                 if (!res) return true;
@@ -90,7 +93,7 @@ namespace TGC.Group.Model
         private bool verificarGiro(float ElepsedTime)
         {
             tiempo += ElepsedTime;
-            if (tiempo > 2)
+            if (tiempo > 1)
             {
                 tiempo = 0;
                 return true;
@@ -126,15 +129,20 @@ namespace TGC.Group.Model
             return resu;
         }
 
-        public new void render()
+       /* public new void render()
         {
-            base.render();
-        }
+            this.getMesh().render();
+            
+            this.getVertexBuffer().SetData(this.getPathLight().crearTriangulos(), 0, LockFlags.None);
 
-        public new void dispose()
-        {
-            base.render();
-        }
+            D3DDevice.Instance.Device.VertexFormat = CustomVertex.PositionColored.Format;
+            //Cargar VertexBuffer a renderizar
+            D3DDevice.Instance.Device.SetStreamSource(0, this.getVertexBuffer(), 0);
+            D3DDevice.Instance.Device.Transform.World = Matrix.Translation(2.5f, 0, 0);
+
+            D3DDevice.Instance.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, this.getPathLight().getCantTriangulos());
+
+        }*/
 
     }
 }
