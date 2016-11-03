@@ -109,7 +109,7 @@ namespace TGC.Group.Model
             cajaConLuz.Scale = new Vector3(0.8f, 0.8f, 0.8f);
             efectoLuz = TgcShaders.loadEffect(ShadersDir + "MultiDiffuseLights.fx");
 
-            this.generarCajas(20);
+            this.generarCajas(40);
 
             controladorIA.setObstaculosEscenario(cajas);
                 
@@ -123,12 +123,12 @@ namespace TGC.Group.Model
             {
 
                 Random randomizador = new Random();
-                var z = randomizador.Next(-1000, 1000);
-                var x = randomizador.Next(-1000, 1000);
+                var z = randomizador.Next(-2500, 2500);
+                var x = randomizador.Next(-2500, 2500);
 
                 TgcMesh caja = new TgcSceneLoader().loadSceneFromFile(MediaDir + Game.Default.pathCajaMetalica).Meshes[0];
                 caja.Scale = new Vector3(0.5f, 0.5f, 0.5f);
-                caja.move(new Vector3(x, 0, z));
+                caja.move(new Vector3(x, 40, z));
                 caja.setColor(Color.Blue);
                 caja.AutoTransformEnable = true;
 
@@ -138,14 +138,14 @@ namespace TGC.Group.Model
 
         private void generarOponentes()
         {
-            oponente = new Oponente(MediaDir, new Vector3(2000, 0, -1000));
+            oponente = new Oponente(MediaDir, new Vector3(2000, 0, 1000));
             oponente2 = new Oponente(MediaDir, new Vector3(-2000, 0, -2200));
             oponente3 = new Oponente(MediaDir, new Vector3(1500, 0, -1600));
-
+            
             oponente.init();
             oponente2.init();
             oponente3.init();
-
+            
             oponente.getPathLight().cambiarColor(Color.Red.ToArgb());
             oponente2.getPathLight().cambiarColor(Color.Green.ToArgb());
             oponente3.getPathLight().cambiarColor(Color.Yellow.ToArgb());
