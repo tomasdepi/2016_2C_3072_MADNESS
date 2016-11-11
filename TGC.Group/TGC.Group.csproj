@@ -60,6 +60,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\Windows\Microsoft.NET\DirectX for Managed Code\1.0.2902.0\Microsoft.DirectX.Direct3D.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.DirectX.Direct3DX, Version=1.0.2911.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     <Reference Include="Microsoft.DirectX.DirectInput, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\Windows\Microsoft.NET\DirectX for Managed Code\1.0.2902.0\Microsoft.DirectX.DirectInput.dll</HintPath>
@@ -84,11 +85,17 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Game.settings</DependentUpon>
     </Compile>
+    <Compile Include="Model\Colisionable.cs" />
+    <Compile Include="Model\ControladorIA.cs" />
+    <Compile Include="Model\GestorPowerUps.cs" />
     <Compile Include="Model\Oponente.cs" />
     <Compile Include="Model\Moto.cs" />
     <Compile Include="Model\PathLight.cs" />
+    <Compile Include="Model\PowerUpInvensible.cs" />
+    <Compile Include="Model\PowerUp.cs" />
+    <Compile Include="Model\PowerUpBoost.cs" />
     <Compile Include="Model\SkyBox.cs" />
-    <Compile Include="Model\TgcThirdPersonCamera.cs" />
+    <Compile Include="Model\camara.cs" />
     <Compile Include="Model\Ejemplo.cs" />
     <Compile Include="Model\GameModel.cs" />
     <Compile Include="Program.cs" />
