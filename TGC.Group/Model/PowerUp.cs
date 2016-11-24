@@ -24,14 +24,14 @@ namespace TGC.Group.Model
         {
             interpolador = new InterpoladorVaiven();
             interpolador.Current = 8;
-            interpolador.Min = 5;
-            interpolador.Max = 25;
+            interpolador.Min = 7;
+            interpolador.Max = 28;
             interpolador.Speed = 40f;
 
             esfera = new TgcSphere();
             esfera.Position = pos;
             esfera.setColor(Color.Red);
-            esfera.Radius = 7;
+            esfera.Radius = 10;
             esfera.LevelOfDetail = 3;
 
             esfera.AutoTransformEnable = true;

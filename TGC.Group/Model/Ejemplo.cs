@@ -112,7 +112,7 @@ namespace TGC.Group.Model
             cajaConLuz.Scale = new Vector3(0.8f, 0.8f, 0.8f);
             efectoLuz = TgcShaders.loadEffect(ShadersDir + "MultiDiffuseLights.fx");
 
-            this.generarCajas(40);
+            this.generarCajas(100);
 
             controladorIA.setObstaculosEscenario(cajas);
                 
@@ -120,7 +120,6 @@ namespace TGC.Group.Model
 
             mp3Player = new TgcMp3Player();
             mp3Player.closeFile();
-            //mp3Player.FileName = "C:\\Users\\tomas\\OneDrive\\Documentos\\GitHub\\2016_2C_3072_MADNESS\\TGC.Group\\Media\\musica.mp3";
             mp3Player.FileName = MediaDir + Game.Default.pathMusica;
             mp3Player.play(true);
 
