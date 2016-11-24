@@ -9,6 +9,7 @@ using TGC.Core.Example;
 using TGC.Core.Geometry;
 using TGC.Core.SceneLoader;
 using TGC.Core.Shaders;
+using TGC.Core.Sound;
 using TGC.Core.Text;
 using TGC.Core.Textures;
 using TGC.Core.Utils;
@@ -57,7 +58,9 @@ namespace TGC.Group.Model
         private Color[] colorLuz;
 
         private GestorPowerUps gestorPowerUps;
-        
+
+        private TgcMp3Player mp3Player;
+
 
         public override void Init()
         {
@@ -114,6 +117,13 @@ namespace TGC.Group.Model
             controladorIA.setObstaculosEscenario(cajas);
                 
             gestorPowerUps = new GestorPowerUps();
+
+            mp3Player = new TgcMp3Player();
+            mp3Player.closeFile();
+            //mp3Player.FileName = "C:\\Users\\tomas\\OneDrive\\Documentos\\GitHub\\2016_2C_3072_MADNESS\\TGC.Group\\Media\\musica.mp3";
+            mp3Player.FileName = MediaDir + Game.Default.pathMusica;
+            mp3Player.play(true);
+
 
         }
 
@@ -333,6 +343,7 @@ namespace TGC.Group.Model
 
             gestorPowerUps.render(ElapsedTime);
 
+            
             PostRender();
         }
 
@@ -356,7 +367,9 @@ namespace TGC.Group.Model
 
             pisoPlane.dispose();
             piso.dispose();
-            
+
+            mp3Player.closeFile();
+
         }
 
 

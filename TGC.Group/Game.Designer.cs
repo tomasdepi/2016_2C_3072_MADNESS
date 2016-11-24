@@ -142,5 +142,17 @@ namespace TGC.Group {
                 this["pathCajaMetalica"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("musica.mp3")]
+        public string pathMusica {
+            get {
+                return ((string)(this["pathMusica"]));
+            }
+            set {
+                this["pathMusica"] = value;
+            }
+        }
     }
 }

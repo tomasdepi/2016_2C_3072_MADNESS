@@ -32,5 +32,8 @@
     <Setting Name="pathCajaMetalica" Type="System.String" Scope="User">
       <Value Profile="(Default)">CajaMetalFuturistica\\CajaMetalFuturistica-TgcScene.xml</Value>
     </Setting>
+    <Setting Name="pathMusica" Type="System.String" Scope="User">
+      <Value Profile="(Default)">musica.mp3</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
